@@ -415,6 +415,8 @@ class RenderedTarget extends Target {
     setEffect (effectName, value) {
         if (!this.effects.hasOwnProperty(effectName)) return;
         this.effects[effectName] = value;
+        // eslint-disable-next-line no-console
+        console.log(this.effects[effectName]);
         if (this.renderer) {
             this.renderer.updateDrawableEffect(this.drawableID, effectName, value);
             if (this.visible) {

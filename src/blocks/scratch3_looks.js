@@ -511,7 +511,13 @@ class Scratch3LooksBlocks {
 
     changeEffect (args, util) {
         const effect = Cast.toString(args.EFFECT).toLowerCase();
+        // eslint-disable-next-line no-console
+        console.log(args);
+        // eslint-disable-next-line no-console
+        console.log(effect, 'effect');
         const change = Cast.toNumber(args.CHANGE);
+        // eslint-disable-next-line no-console
+        console.log(args.CHANGE);
         if (!util.target.effects.hasOwnProperty(effect)) return;
         let newValue = change + util.target.effects[effect];
         newValue = this.clampEffect(effect, newValue);

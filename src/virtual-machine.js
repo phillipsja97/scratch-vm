@@ -553,6 +553,8 @@ class VirtualMachine extends EventEmitter {
      */
     addSprite (input) {
         const errorPrefix = 'Sprite Upload Error:';
+        // eslint-disable-next-line no-console
+        console.log(input);
         if (typeof input === 'object' && !(input instanceof ArrayBuffer) &&
           !ArrayBuffer.isView(input)) {
             // If the input is an object and not any ArrayBuffer
