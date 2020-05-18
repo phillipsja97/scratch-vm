@@ -118,6 +118,44 @@ class Scratch3NewBlocks {
         let value = Cast.toNumber(args.COLOR);
         value = this.clampEffect(effect, value);
         util.target.setEffect(effect, value);
+        this.forever(args, util);
+    }
+
+    forever (args, util) {
+        util.startBranch(1, true);
+        this.startSequence(args, util);
+    }
+
+    startSequence (args, util) {
+        this._setCostume(
+            util.target, util.target.currentCostume + 1, true
+        );
+    }
+
+    _setCostume (target, requestedCostume, optZeroIndex) {
+        if (typeof requestedCostume === 'number') {
+            // Numbers should be treated as costume indices, always
+            target.setCostume(optZeroIndex ? requestedCostume : requestedCostume - 1);
+        } else {
+            // Strings should be treated as costume names, where possible
+            const costumeIndex = target.getCostumeIndexByName(requestedCostume.toString());
+
+            if (costumeIndex !== -1) {
+                target.setCostume(costumeIndex);
+            } else if (requestedCostume === 'next costume') {
+                target.setCostume(target.currentCostume + 1);
+            } else if (requestedCostume === 'previous costume') {
+                target.setCostume(target.currentCostume - 1);
+            // Try to cast the string to a number (and treat it as a costume index)
+            // Pure whitespace should not be treated as a number
+            // Note: isNaN will cast the string to a number before checking if it's NaN
+            } else if (!(isNaN(requestedCostume) || Cast.isWhiteSpace(requestedCostume))) {
+                target.setCostume(optZeroIndex ? Number(requestedCostume) : Number(requestedCostume) - 1);
+            }
+        }
+
+        // Per 2.0, 'switch costume' can't start threads even in the Stage.
+        return [];
     }
 
     moveSteps (args, util) {
