@@ -4,15 +4,116 @@ const BlockType = require('../../extension-support/block-type');
 const Cast = require('../../util/cast');
 const Color = require('../../util/color');
 const MathUtil = require('../../util/math-util');
-const RenderedTarget = require('../../sprites/rendered-target');
+const Clone = require('../../util/clone');
+// const RenderedTarget = require('../../sprites/rendered-target');
+// const VirtualMachine = require('../../virtual-machine');
+// const vm = new VirtualMachine();
+// const ScratchStorage = require('scratch-storage');
+// const storage = new ScratchStorage();
 const Scratch3LooksBlocks = require('../../blocks/scratch3_looks');
+const Scratch3ControlBlocks = require('../../blocks/scratch3_control');
+// const svg = require('./Assets/satellite2.svg');
+// const png = require('./Assets/satellite2.png');
+// const buffer = require('arraybuffer-loader!./Assets/satellite2.svg');
+// const Scratch = window.Scratch = window.Scratch || {};
+// const ScratchRender = require('scratch-render');
+// const ScratchSVGRenderer = require('scratch-svg-renderer');
+// const fs = require('fs');
 
 
-class Scratch3NewBlocks {
+class Scratch3Satellite {
     constructor (runtime) {
         this.runtime = runtime;
+        // const canvas = document.createElement('canvas');
+        // vm.attachStorage(storage);
+        // eslint-disable-next-line no-console
+        // console.log(fs);
+        // const stage = vm.runtime.targets;
+        // eslint-disable-next-line no-console
+        // const vector = new Uint8Array(buffer);
+        // eslint-disable-next-line no-console
+        // console.log(vector, 'vector');
+        // const dataURL = new Buffer(fs.readFileSync(svg));
+        // let _TextEncoder;
+        // if (typeof TextEncoder === 'undefined') {
+        //     _TextEncoder = require('text-encoding').TextEncoder;
+        // } else {
+        //     /* global TextEncoder */
+        //     _TextEncoder = TextEncoder;
+        // }
+        // vm.attachV2BitmapAdapter(new ScratchSVGRenderer.BitmapAdapter());
+        // const dataURL = canvas.toDataURL(png);
+        // eslint-disable-next-line no-console
+        // console.log(dataURL, 'data');
+        // const data = runtime.v2BitmapAdapter.convertDataURIToBinary(dataURL);
+        // eslint-disable-next-line no-console
+        // console.log(binary);
+        // // const costume = Scratch.createVMAsset(binary);
+        // const costume = {};
+        // costume.asset = storage.createAsset(
+        //     storage.AssetType.ImageBitmap,
+        //     storage.DataFormat.PNG,
+        //     data,
+        //     null,
+        //     true // generate md5
+        // );
+        // costume.dataFormat = storage.DataFormat.PNG;
+        // costume.assetId = costume.asset.assetId;
+        // costume.md5 = `${costume.assetId}.${costume.dataFormat}`;
+        // costume.name = 'Satellite1';
+        // costume.rotationCenterX = 28;
+        // costume.rotationCenterY = 23;
+        // const renderer = new ScratchRender(canvas);
+        // Scratch.renderer = renderer;
+        // vm.attachRenderer(renderer);
+        // const newSprite = {
+        //     name: 'Satellite',
+        //     isStage: false,
+        //     x: -89, // x/y will be randomized below
+        //     y: 127,
+        //     visible: true,
+        //     size: 100,
+        //     rotationStyle: 'all around',
+        //     direction: 90,
+        //     draggable: true,
+        //     currentCostume: 0,
+        //     variables: {},
+        //     lists: {},
+        //     broadcasts: {},
+        //     blocks: {},
+        //     comments: {},
+        //     costumes: [costume],
+        //     sounds: [], // TODO are all of these necessary?
+        //     objName: 'Satellite'
+        // };
+        // vm.addSprite(JSON.stringify(newSprite));
     }
 
+    static get STATE_KEY () {
+        return 'Scratch.Satellite';
+    }
+
+    static get DEFAULT_STATE () {
+        return {
+            color: 66.66,
+            saturation: 100,
+            brightness: 100,
+            transparency: 0
+            // penAttributes: {
+            //     color4f: [0, 0, 1, 1],
+            //     diameter: 1
+            // }
+        };
+    }
+
+    _getSatelliteState (target) {
+        let satelliteState = target.getCustomState(Scratch3Satellite.STATE_KEY);
+        if (!satelliteState) {
+            satelliteState = Clone.simple(Scratch3Satellite.DEFAULT_PEN_STATE);
+            target.setCustomState(Scratch3Satellite.STATE_KEY, satelliteState);
+        }
+        return satelliteState;
+    }
 
     getInfo () {
         return {
@@ -20,20 +121,69 @@ class Scratch3NewBlocks {
             name: 'Satellite Sequence',
             blocks: [
                 {
-                    opcode: 'moveSteps',
+                    opcode: 'clockwiseBySpots',
                     blockType: BlockType.COMMAND,
-                    text: 'Start Sequence 1 with [COLOR]',
+                    text: 'Move Clockwise [TIMES] Spot(s)',
                     arguments: {
-                        COLOR: {
-                            type: ArgumentType.COLOR,
-                            defaultValue: '#FF3333'
+                        TIMES: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 1
                         }
                     }
                 },
                 {
-                    opcode: 'changeColor',
+                    opcode: 'counterClockwiseBySpots',
                     blockType: BlockType.COMMAND,
-                    text: 'Start [SEQUENCE] with [EFFECT] [COLOR]',
+                    text: 'Move CounterClockwise [TIMES] Spot(s)',
+                    arguments: {
+                        TIMES: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 1
+                        }
+                    }
+                },
+                {
+                    opcode: 'randomSteps',
+                    blockType: BlockType.COMMAND,
+                    text: 'Move random Number of Steps'
+                },
+                {
+                    opcode: 'clockwiseByLoop',
+                    blockType: BlockType.COMMAND,
+                    text: 'Move Clockwise [LOOPS] Loop(s)',
+                    arguments: {
+                        TIMES: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 16
+                        },
+                        LOOPS: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 1
+                        }
+                    }
+                },
+                {
+                    opcode: 'counterClockwiseByLoop',
+                    blockType: BlockType.COMMAND,
+                    text: 'Move CounterClockwise [LOOPS] Loop(s) at Speed [DURATION]',
+                    arguments: {
+                        TIMES: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 16
+                        },
+                        LOOPS: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 1
+                        },
+                        DURATION: {
+                            type: ArgumentType.NUMBER
+                        }
+                    }
+                },
+                {
+                    opcode: 'chooseColor',
+                    blockType: BlockType.COMMAND,
+                    text: 'Choose Color [EFFECT] [COLOR]',
                     arguments: {
                         COLOR: {
                             type: ArgumentType.COLOR,
@@ -43,52 +193,129 @@ class Scratch3NewBlocks {
                         EFFECT: {
                             type: ArgumentType.STRING,
                             defaultValue: 'COLOR'
-
+                        }
+                    }
+                },
+                {
+                    opcode: 'chooseSpotWithColor',
+                    blockType: BlockType.COMMAND,
+                    text: 'Set [LIGHT] to [COLOR]',
+                    arguments: {
+                        LIGHT: {
+                            type: ArgumentType.LIGHT,
+                            menu: 'lights',
+                            defaultValue: 'Light1'
                         },
-                        SEQUENCE: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 'Sequence 1',
-                            menu: 'sequences'
+                        COLOR: {
+                            type: ArgumentType.COLOR,
+                            menu: 'colors',
+                            defaultValue: 'Blue'
+                        }
+                    }
+                },
+                {
+                    opcode: 'sequenceSpeed',
+                    blockType: BlockType.COMMAND,
+                    text: 'Control Speed By [DURATION]',
+                    arguments: {
+                        DURATION: {
+                            type: ArgumentType.NUMBER
                         }
                     }
                 }
             ],
             menus: {
-                sequences: {
-                    acceptReporters: true,
-                    items: [
-                        {
-                            text: 'Sequence 1',
-                            value: 'Sequence 1'
-                        },
-                        {
-                            text: 'Sequence 2',
-                            value: 'Sequence 2'
-                        }
-                    ]
-                },
                 colors: {
                     acceptReporters: true,
                     items: [
                         {
                             text: 'Blue',
-                            value: 100
+                            value: 110 // 54 - 56
                         },
                         {
                             text: 'Yellow',
-                            value: 25
+                            value: 35 // 17 - 18
                         },
                         {
                             text: 'Green',
-                            value: 50
+                            value: 70 // 35 - 35
                         },
                         {
                             text: 'Purple',
-                            value: 145
+                            value: 155 // 77 - 78
                         },
                         {
                             text: 'Red',
-                            value: 190
+                            value: 200 // 0 - 200
+                        }
+                    ]
+                },
+                lights: {
+                    acceptReporters: true,
+                    items: [
+                        {
+                            text: 'Light1',
+                            value: 0
+                        },
+                        {
+                            text: 'Light2',
+                            value: 1
+                        },
+                        {
+                            text: 'Light3',
+                            value: 2
+                        },
+                        {
+                            text: 'Light4',
+                            value: 3
+                        },
+                        {
+                            text: 'Light5',
+                            value: 4
+                        },
+                        {
+                            text: 'Light6',
+                            value: 5
+                        },
+                        {
+                            text: 'Light7',
+                            value: 6
+                        },
+                        {
+                            text: 'Light8',
+                            value: 7
+                        },
+                        {
+                            text: 'Light9',
+                            value: 8
+                        },
+                        {
+                            text: 'Light10',
+                            value: 9
+                        },
+                        {
+                            text: 'Light11',
+                            value: 10
+                        },
+                        {
+                            text: 'Light12',
+                            value: 11
+                        },
+                        {
+                            text: 'Light13',
+                            value: 12
+                        },
+                        {
+                            text: 'Light14',
+                            value: 13
+                        },
+                        {
+                            text: 'Light15',
+                            value: 14
+                        },
+                        {
+                            text: 'Light16',
+                            value: 15
                         }
                     ]
                 }
@@ -113,20 +340,32 @@ class Scratch3NewBlocks {
         return clampedValue;
     }
 
-    changeColor (args, util) {
+    chooseColor (args, util) {
         const effect = Cast.toString(args.EFFECT).toLowerCase();
         let value = Cast.toNumber(args.COLOR);
         value = this.clampEffect(effect, value);
         util.target.setEffect(effect, value);
-        this.forever(args, util);
     }
 
-    forever (args, util) {
-        util.startBranch(1, true);
-        this.startSequence(args, util);
+    moveSpots (args, util) {
+        this._setCostume(
+            util.target, util.target.currentCostume + 1, true
+        );
     }
 
-    startSequence (args, util) {
+    moveReverseSpots (args, util) {
+        this._setCostume(
+            util.target, util.target.currentCostume - 1, true
+        );
+    }
+
+    startReverseSequence (util) {
+        this._setCostume(
+            util.target, util.target.currentCostume - 1, true
+        );
+    }
+
+    startSequence (util) {
         this._setCostume(
             util.target, util.target.currentCostume + 1, true
         );
@@ -134,10 +373,9 @@ class Scratch3NewBlocks {
 
     _setCostume (target, requestedCostume, optZeroIndex) {
         if (typeof requestedCostume === 'number') {
-            // Numbers should be treated as costume indices, always
+
             target.setCostume(optZeroIndex ? requestedCostume : requestedCostume - 1);
         } else {
-            // Strings should be treated as costume names, where possible
             const costumeIndex = target.getCostumeIndexByName(requestedCostume.toString());
 
             if (costumeIndex !== -1) {
@@ -146,52 +384,109 @@ class Scratch3NewBlocks {
                 target.setCostume(target.currentCostume + 1);
             } else if (requestedCostume === 'previous costume') {
                 target.setCostume(target.currentCostume - 1);
-            // Try to cast the string to a number (and treat it as a costume index)
-            // Pure whitespace should not be treated as a number
-            // Note: isNaN will cast the string to a number before checking if it's NaN
             } else if (!(isNaN(requestedCostume) || Cast.isWhiteSpace(requestedCostume))) {
                 target.setCostume(optZeroIndex ? Number(requestedCostume) : Number(requestedCostume) - 1);
             }
         }
-
-        // Per 2.0, 'switch costume' can't start threads even in the Stage.
         return [];
     }
 
-    moveSteps (args, util) {
-        // eslint-disable-next-line no-console
-        console.log(util, 'util');
-        // eslint-disable-next-line no-console
-        const steps = Cast.toNumber(args.STEPS);
-        const radians = MathUtil.degToRad(90 - util.target.direction);
-        const dx = steps * Math.cos(radians);
-        const dy = steps * Math.sin(radians);
-        util.target.setXY(util.target.x + dx, util.target.y + dy);
+    clockwiseBySpots (args, util) {
+        const times = Math.round(Cast.toNumber(args.TIMES));
+
+        if (typeof util.stackFrame.loopCounter === 'undefined') {
+            util.stackFrame.loopCounter = times;
+        }
+        this.moveSpots(args, util);
+
+        util.stackFrame.loopCounter--;
+
+        if (util.stackFrame.loopCounter > 0) {
+            util.startBranch(1, true);
+        }
     }
 
-    setXY (x, y, force) {
-        if (this.isStage) return;
-        if (this.dragging && !force) return;
-        const oldX = this.x;
-        const oldY = this.y;
-        if (this.renderer) {
-            const position = this.renderer.getFencedPositionOfDrawable(this.drawableID, [x, y]);
-            this.x = position[0];
-            this.y = position[1];
+    counterClockwiseBySpots (args, util) {
+        const times = Math.round(Cast.toNumber(args.TIMES));
 
-            this.renderer.updateDrawablePosition(this.drawableID, position);
-            if (this.visible) {
-                this.emit(RenderedTarget.EVENT_TARGET_VISUAL_CHANGE, this);
-                this.runtime.requestRedraw();
-            }
-        } else {
-            this.x = x;
-            this.y = y;
+        if (typeof util.stackFrame.loopCounter === 'undefined') {
+            util.stackFrame.loopCounter = times;
         }
-        this.emit(RenderedTarget.EVENT_TARGET_MOVED, this, oldX, oldY, force);
-        this.runtime.requestTargetsUpdate(this);
+        this.moveReverseSpots(args, util);
+
+        util.stackFrame.loopCounter--;
+
+        if (util.stackFrame.loopCounter > 0) {
+            util.startBranch(1, true);
+        }
+    }
+
+    clockwiseByLoop (args, util) {
+        const amount = Cast.toNumber(16) * Cast.toNumber(args.LOOPS);
+        const times = Math.round(Cast.toNumber(amount));
+
+        if (typeof util.stackFrame.loopCounter === 'undefined') {
+            util.stackFrame.loopCounter = times;
+        }
+        this.startSequence(util);
+
+        util.stackFrame.loopCounter--;
+
+        if (util.stackFrame.loopCounter > 0) {
+            util.startBranch(1, true);
+        }
+    }
+
+    counterClockwiseByLoop (args, util) {
+        const amount = Cast.toNumber(16) * Cast.toNumber(args.LOOPS);
+        const times = Math.round(Cast.toNumber(amount));
+
+        if (typeof util.stackFrame.loopCounter === 'undefined') {
+            util.stackFrame.loopCounter = times;
+        }
+
+        this.startReverseSequence(util);
+        util.stackFrame.loopCounter--;
+
+        if (util.stackFrame.loopCounter > 0) {
+            util.startBranch(1, true);
+        }
+    }
+
+    moveOneLoop (times, util) {
+        const spots = Cast.toNumber(16);
+        this._setCostume(
+            util.target, util.target.currentCostume + spots, true
+        );
+    }
+
+    randomSteps (args, util) {
+        const randomIndex = Math.floor(Math.random() * Math.floor(16));
+        this._setCostume(
+            util.target, randomIndex - 1, true
+        );
+    }
+
+    chooseSpotWithColor (args, util) {
+        util.target.setCostume(args.LIGHT);
+        const effect = Cast.toString('color').toLowerCase();
+        let value = Cast.toNumber(args.COLOR);
+        value = this.clampEffect(effect, value);
+        util.target.setEffect(effect, value);
+    }
+
+    sequenceSpeed (args, util) {
+        if (util.stackTimerNeedsInit()) {
+            const duration = Math.max(0, 10 * Cast.toNumber(args.DURATION));
+
+            util.startStackTimer(duration);
+            this.runtime.requestRedraw();
+            util.yield();
+        } else if (!util.stackTimerFinished()) {
+            util.yield();
+        }
     }
 }
   
 
-module.exports = Scratch3NewBlocks;
+module.exports = Scratch3Satellite;

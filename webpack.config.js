@@ -25,7 +25,7 @@ const base = {
             }
         },
         {
-            test: /\.mp3$/,
+            test: /.*\.(gif|png|jpe?g|svg)$/i,
             loader: 'file-loader'
         }]
     },

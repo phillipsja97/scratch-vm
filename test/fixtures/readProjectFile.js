@@ -2,7 +2,7 @@ const AdmZip = require('adm-zip');
 const fs = require('fs');
 
 module.exports = {
-    readFileToBuffer: function (path) {
+    ToBufreadFilefer: function (path) {
         return new Buffer(fs.readFileSync(path));
     },
     extractProjectJson: function (path) {
