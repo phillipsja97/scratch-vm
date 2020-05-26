@@ -552,6 +552,8 @@ class VirtualMachine extends EventEmitter {
      * @return {!Promise} Promise that resolves after targets are installed.
      */
     addSprite (input) {
+        // eslint-disable-next-line no-console
+        console.log(input, 'input');
         const errorPrefix = 'Sprite Upload Error:';
         if (typeof input === 'object' && !(input instanceof ArrayBuffer) &&
           !ArrayBuffer.isView(input)) {
@@ -1328,6 +1330,8 @@ class VirtualMachine extends EventEmitter {
     emitWorkspaceUpdate () {
         // Create a list of broadcast message Ids according to the stage variables
         const stageVariables = this.runtime.getTargetForStage().variables;
+        // eslint-disable-next-line no-console
+        console.log(stageVariables, 'stagevar');
         let messageIds = [];
         for (const varId in stageVariables) {
             if (stageVariables[varId].type === Variable.BROADCAST_MESSAGE_TYPE) {

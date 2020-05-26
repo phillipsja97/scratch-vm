@@ -1270,7 +1270,7 @@ const deserialize = function (json, runtime, zip, isSingleSprite) {
         .then(targets => {
             monitorObjects.map(monitorDesc => deserializeMonitor(monitorDesc, runtime, targets, extensions));
             // eslint-disable-next-line no-console
-            console.log(targets[0], 'targets');
+            console.log(targets, 'targets');
             return targets;
         })
         .then(targets => ({
