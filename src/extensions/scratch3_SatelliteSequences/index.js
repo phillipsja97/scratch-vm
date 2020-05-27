@@ -17,8 +17,8 @@ const Scratch3LooksBlocks = require('../../blocks/scratch3_looks');
 // const svg = require('./Assets/satellite2.svg');
 // const png = require('./Assets/satellite2.png');
 // const buffer = require('arraybuffer-loader!./Assets/satellite2.svg');
-const Scratch = window.Scratch = window.Scratch || {};
-const ScratchRender = require('scratch-render');
+// const Scratch = window;
+// const ScratchRender = require('scratch-render');
 // const reader = new FileReader();
 // const ScratchSVGRenderer = require('scratch-svg-renderer');
 // const svg = require('./Assets/satellite2.svg');
@@ -30,15 +30,21 @@ const ScratchRender = require('scratch-render');
 
 class Scratch3Satellite {
     constructor (runtime) {
+        // eslint-disable-next-line no-console
+        // console.log(Scratch, 'scratch');
+        // const vm = new Scratch.VirtualMachine();
         this.runtime = runtime;
-        const vm = new VirtualMachine(runtime);
+        const vm = window.vm;
         // eslint-disable-next-line no-console
-        console.log(vm.runtime, 'newruntime');
+        // console.log(vm, 'newruntime');
+        // const target = runtime.targets[0];
+        // eslint-disable-next-line no-console
+        // console.log(vm.runtime, 'newruntime');
+        // vm.runtime.addTarget(target);
         // const canvas = document.createElement('canvas');
-        // eslint-disable-next-line no-console
         const storage = runtime.storage;
-        vm.attachStorage(runtime.storage);
-        const svg2 = `<svg xmlns="http://www.w3.org/2000/svg" width="127mm" height="95.25mm" viewBox="0 0 210 297" version="1.1" id="svg2053">
+        // vm.attachStorage(runtime.storage);
+        const svg2 = `<svg xmlns="http://www.w3.org/2000/svg" width="480mm" height="360mm" viewBox="0 0 210 297" version="1.1" id="svg2053">
                         <g>
                             <path
                             d="m -117.17262,-21.166662 h 480.7857 V 339.4226 h -480.7857 z"
@@ -185,31 +191,11 @@ class Scratch3Satellite {
         costume2.rotationCenterY = 23;
         // const renderer = new ScratchRender(canvas);
         // Scratch.renderer = renderer;
-        vm.attachRenderer(runtime.renderer);
-        const newSprite = {
-            name: 'Satellite',
-            isStage: false,
-            x: -89, // x/y will be randomized below
-            y: 127,
-            visible: true,
-            size: 100,
-            rotationStyle: 'all around',
-            direction: 90,
-            draggable: true,
-            currentCostume: 0,
-            variables: {},
-            lists: {},
-            broadcasts: {},
-            blocks: {},
-            comments: {},
-            costumes: [costume1],
-            sounds: [], // TODO are all of these necessary?
-            objName: 'Satellite'
-        };
-        // const stage = {
-        //     name: 'Backdrop',
-        //     isStage: true,
-        //     x: -89,
+        // vm.attachRenderer(runtime.renderer);
+        // const newSprite = {
+        //     name: 'Satellite',
+        //     isStage: false,
+        //     x: -89, // x/y will be randomized below
         //     y: 127,
         //     visible: true,
         //     size: 100,
@@ -217,35 +203,90 @@ class Scratch3Satellite {
         //     direction: 90,
         //     draggable: true,
         //     currentCostume: 0,
-        //     variables: [{name: 'myVariable', value: 0}],
+        //     variables: {
+        //         'Z[o`{!h48F+n]q_]ASoC': ['my variable', 0]
+        //     },
         //     lists: {},
         //     broadcasts: {},
         //     blocks: {},
         //     comments: {},
+        //     costumes: [costume1],
+        //     sounds: [], // TODO are all of these necessary?
+        //     objName: 'Satellite'
+        // };
+        // const newSprite2 = {
+        //     isStage: true,
+        //     name: 'Stage',
+        //     variables: {
+        //         'Z[o`{!h48F+n]q_]ASoC': ['my variable', 0]
+        //     },
+        //     lists: {},
+        //     broadcasts: {},
+        //     blocks: {},
+        //     comments: {},
+        //     currentCostume: 0,
         //     costumes: [costume2],
         //     sounds: [],
-        //     volume: 0,
+        //     volume: 100,
         //     layerOrder: 0,
-        //     tempo: 100,
+        //     tempo: 60,
         //     videoTransparency: 50,
         //     videoState: 'on',
         //     textToSpeechLanguage: null,
-        //     objName: 'Backdrop'
+        //     objName: 'Stage'
         // };
-        const sprite2 = {
-            name: 'sprite2',
-            isStage: true,
-            tempo: 100,
-            videoTransparency: 50,
-            videoState: 'on',
-            layerOrder: 0,
-            variables: [{name: 'myVariable', value: 0}],
-            blocks: {},
-            costumes: [costume2],
-            sounds: []
+        // vm.addSprite(JSON.stringify(newSprite2));
+        const newProject = {
+            targets: [
+                {
+                    isStage: true,
+                    name: 'Stage',
+                    variables: {'`jEk@4|i[#Fk?(8x)AV.-my variable': ['my variable', 0]},
+                    lists: {},
+                    broadcasts: {},
+                    blocks: {},
+                    comments: {},
+                    currentCostume: 0,
+                    costumes: [costume2],
+                    sounds: [],
+                    volume: 100,
+                    layerOrder: 0,
+                    tempo: 60,
+                    videoTransparency: 50,
+                    videoState: 'on',
+                    textToSpeechLanguage: null
+                },
+                {
+                    isStage: false,
+                    name: 'Satellite1',
+                    variables: {},
+                    lists: {},
+                    broadcasts: {},
+                    blocks: {},
+                    comments: {},
+                    currentCostume: 0,
+                    costumes: [costume1],
+                    sounds: [],
+                    volume: 100,
+                    layerOrder: 1,
+                    visible: true,
+                    x: -93,
+                    y: 146,
+                    size: 150,
+                    direction: 90,
+                    draggable: false,
+                    rotationStyle: 'all around'
+                }
+            ],
+            monitors: [],
+            extensions: [],
+            meta: {
+                semver: '3.0.0',
+                vm: '0.2.0',
+                agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36'
+            }
         };
-        vm.addSprite(JSON.stringify(sprite2));
-        vm.addSprite(JSON.stringify(newSprite));
+        vm.loadProject(JSON.stringify(newProject));
     }
 
     getInfo () {
@@ -619,6 +660,7 @@ class Scratch3Satellite {
             util.yield();
         }
     }
+
 }
   
 
