@@ -17,6 +17,9 @@ try {
     // Non-webpack environment, don't worry about assets.
 }
 
+// eslint-disable-next-line no-console
+console.log(assetData, 'assetData');
+
 /**
  * Icon svg to be displayed at the left edge of each extension block, encoded as a data URI.
  * @type {string}

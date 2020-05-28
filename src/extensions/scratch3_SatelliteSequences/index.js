@@ -3,18 +3,13 @@
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
 const Cast = require('../../util/cast');
-const Color = require('../../util/color');
 const MathUtil = require('../../util/math-util');
-const Clone = require('../../util/clone');
-const RenderedTarget = require('../../sprites/rendered-target');
-const VirtualMachine = require('../../virtual-machine');
-// const vm = new VirtualMachine();
-// const ScratchStorage = require('scratch-storage');
-// const storage = new ScratchStorage();
 const Scratch3LooksBlocks = require('../../blocks/scratch3_looks');
 // const buffer = require('arraybuffer-loader!./Assets/satellite2.svg');
 // const svg = new Uint8Array(buffer);
-// const svg = require('./Assets/satellite2.svg');
+const svgData = require('./Assets/satellite2.svg');
+const timer = require('../../util/timer');
+const time = new timer();
 // const png = require('./Assets/satellite2.png');
 // const buffer = require('arraybuffer-loader!./Assets/satellite2.svg');
 // const Scratch = window;
@@ -30,21 +25,19 @@ const Scratch3LooksBlocks = require('../../blocks/scratch3_looks');
 
 class Scratch3Satellite {
     constructor (runtime) {
-        // eslint-disable-next-line no-console
-        // console.log(Scratch, 'scratch');
-        // const vm = new Scratch.VirtualMachine();
         this.runtime = runtime;
         const vm = window.vm;
-        // eslint-disable-next-line no-console
-        // console.log(vm, 'newruntime');
-        // const target = runtime.targets[0];
-        // eslint-disable-next-line no-console
-        // console.log(vm.runtime, 'newruntime');
-        // vm.runtime.addTarget(target);
-        // const canvas = document.createElement('canvas');
         const storage = runtime.storage;
-        // vm.attachStorage(runtime.storage);
-        const svg2 = `<svg xmlns="http://www.w3.org/2000/svg" width="480mm" height="360mm" viewBox="0 0 210 297" version="1.1" id="svg2053">
+
+        // const buffer = require('arraybuffer-loader!./Assets/satellite2.svg');
+        // // eslint-disable-next-line no-console
+        // console.log(buffer, 'buffer');
+        // const svgg = new Uint8Array(buffer);
+        // // eslint-disable-next-line no-console
+        // console.log(svgg, 'svgggg');
+
+
+        const svg2 = `<svg xmlns="http://www.w3.org/2000/svg" width="480px" height="360px" viewBox="0 0 210 297" version="1.1" id="svg2053">
                         <g>
                             <path
                             d="m -117.17262,-21.166662 h 480.7857 V 339.4226 h -480.7857 z"
@@ -52,7 +45,7 @@ class Scratch3Satellite {
                             fill ='#000000'
                             stroke-width= '11.1346' />
                         </g>
-                        </svg>`;
+                      </svg>`;
 
         const svg =
             `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="210.0" height="297.0" viewBox="0 0 210 297" version="1.1" id="Layer_1">
@@ -143,24 +136,11 @@ class Scratch3Satellite {
           `;
         const encoder = new TextEncoder();
         const newSVG = encoder.encode(svg);
+        // eslint-disable-next-line no-console
+        console.log(newSVG, 'encodedSVG');
         const encoder2 = new TextEncoder();
         const newSVG2 = encoder2.encode(svg2);
-        // const dataURL = new Buffer(fs.readFileSync(svg));
-        // let _TextEncoder;
-        // if (typeof TextEncoder === 'undefined') {
-        //     _TextEncoder = require('text-encoding').TextEncoder;
-        // } else {
-        //     /* global TextEncoder */
-        //     _TextEncoder = TextEncoder;
-        // }
-        // vm.attachV2BitmapAdapter(new ScratchSVGRenderer.BitmapAdapter());
-        // const dataURL = canvas.toDataURL(png);
-        // eslint-disable-next-line no-console
-        // console.log(dataURL, 'data');
-        // const data = runtime.v2BitmapAdapter.convertDataURIToBinary(dataURL);
-        // eslint-disable-next-line no-console
-        // console.log(binary);
-        // // const costume = Scratch.createVMAsset(binary);
+
         const costume1 = {};
         costume1.asset = storage.createAsset(
             storage.AssetType.ImageVector,
@@ -175,6 +155,7 @@ class Scratch3Satellite {
         costume1.name = 'Satellite1';
         costume1.rotationCenterX = 28;
         costume1.rotationCenterY = 23;
+
         const costume2 = {};
         costume2.asset = storage.createAsset(
             storage.AssetType.ImageVector,
@@ -187,55 +168,9 @@ class Scratch3Satellite {
         costume2.assetId = costume2.asset.assetId;
         costume2.md5 = `${costume2.assetId}.${costume2.dataFormat}`;
         costume2.name = 'backdrop1';
-        costume2.rotationCenterX = 28;
-        costume2.rotationCenterY = 23;
-        // const renderer = new ScratchRender(canvas);
-        // Scratch.renderer = renderer;
-        // vm.attachRenderer(runtime.renderer);
-        // const newSprite = {
-        //     name: 'Satellite',
-        //     isStage: false,
-        //     x: -89, // x/y will be randomized below
-        //     y: 127,
-        //     visible: true,
-        //     size: 100,
-        //     rotationStyle: 'all around',
-        //     direction: 90,
-        //     draggable: true,
-        //     currentCostume: 0,
-        //     variables: {
-        //         'Z[o`{!h48F+n]q_]ASoC': ['my variable', 0]
-        //     },
-        //     lists: {},
-        //     broadcasts: {},
-        //     blocks: {},
-        //     comments: {},
-        //     costumes: [costume1],
-        //     sounds: [], // TODO are all of these necessary?
-        //     objName: 'Satellite'
-        // };
-        // const newSprite2 = {
-        //     isStage: true,
-        //     name: 'Stage',
-        //     variables: {
-        //         'Z[o`{!h48F+n]q_]ASoC': ['my variable', 0]
-        //     },
-        //     lists: {},
-        //     broadcasts: {},
-        //     blocks: {},
-        //     comments: {},
-        //     currentCostume: 0,
-        //     costumes: [costume2],
-        //     sounds: [],
-        //     volume: 100,
-        //     layerOrder: 0,
-        //     tempo: 60,
-        //     videoTransparency: 50,
-        //     videoState: 'on',
-        //     textToSpeechLanguage: null,
-        //     objName: 'Stage'
-        // };
-        // vm.addSprite(JSON.stringify(newSprite2));
+        costume2.rotationCenterX = 240;
+        costume2.rotationCenterY = 180;
+
         const newProject = {
             targets: [
                 {
@@ -270,8 +205,8 @@ class Scratch3Satellite {
                     volume: 100,
                     layerOrder: 1,
                     visible: true,
-                    x: -93,
-                    y: 146,
+                    x: 0,
+                    y: 0,
                     size: 150,
                     direction: 90,
                     draggable: false,
@@ -324,22 +259,7 @@ class Scratch3Satellite {
                 {
                     opcode: 'clockwiseByLoop',
                     blockType: BlockType.COMMAND,
-                    text: 'Move Clockwise [LOOPS] Loop(s)',
-                    arguments: {
-                        TIMES: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 16
-                        },
-                        LOOPS: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 1
-                        }
-                    }
-                },
-                {
-                    opcode: 'counterClockwiseByLoop',
-                    blockType: BlockType.COMMAND,
-                    text: 'Move CounterClockwise [LOOPS] Loop(s) at Speed [DURATION]',
+                    text: 'Move Clockwise [LOOPS] Loop(s) at speed [DURATION]',
                     arguments: {
                         TIMES: {
                             type: ArgumentType.NUMBER,
@@ -351,6 +271,21 @@ class Scratch3Satellite {
                         },
                         DURATION: {
                             type: ArgumentType.NUMBER
+                        }
+                    }
+                },
+                {
+                    opcode: 'counterClockwiseByLoop',
+                    blockType: BlockType.COMMAND,
+                    text: 'Move CounterClockwise [LOOPS] Loop(s)',
+                    arguments: {
+                        TIMES: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 16
+                        },
+                        LOOPS: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 1
                         }
                     }
                 },
@@ -539,7 +474,7 @@ class Scratch3Satellite {
         );
     }
 
-    startSequence (util) {
+    startSequence (args, util) {
         this._setCostume(
             util.target, util.target.currentCostume + 1, true
         );
@@ -595,19 +530,59 @@ class Scratch3Satellite {
         }
     }
 
+    // clockwiseByLoop (args, util) {
+    //     const amount = Cast.toNumber(16) * Cast.toNumber(args.LOOPS);
+    //     const times = Math.round(Cast.toNumber(amount));
+
+    //     if (typeof util.stackFrame.loopCounter === 'undefined') {
+    //         util.stackFrame.loopCounter = times;
+    //     }
+
+    //     this.startSequence(args, util);
+    //     // eslint-disable-next-line no-console
+    //     console.log(util, 'util');
+
+    //     util.stackFrame.loopCounter--;
+
+    //     if (util.stackFrame.loopCounter > 0) {
+    //         util.startBranch(1, true);
+    //     }
+    // }
+
     clockwiseByLoop (args, util) {
         const amount = Cast.toNumber(16) * Cast.toNumber(args.LOOPS);
-        const times = Math.round(Cast.toNumber(amount));
 
         if (typeof util.stackFrame.loopCounter === 'undefined') {
-            util.stackFrame.loopCounter = times;
+            util.stackFrame.loopCounter = amount;
         }
-        this.startSequence(util);
 
-        util.stackFrame.loopCounter--;
+        // this.startReverseSequence(util);
+        // util.stackFrame.loopCounter--;
 
         if (util.stackFrame.loopCounter > 0) {
-            util.startBranch(1, true);
+            this.startSequence(args, util);
+        }
+
+        // while (amount > 0) {
+        //     // eslint-disable-next-line no-console
+        //     console.log(amount, 'amount');
+        //     util.startBranch(1, true);
+        //     this._setCostume(
+        //         util.target, util.target.currentCostume + 1, true
+        //     );
+        //     amount--;
+        // }
+    }
+
+    wait (args, util) {
+        if (util.stackTimerNeedsInit()) {
+            const duration = Math.max(0, 1000 * Cast.toNumber(args.DURATION));
+
+            util.startStackTimer(duration);
+            this.runtime.requestRedraw();
+            util.yield();
+        } else if (!util.stackTimerFinished()) {
+            util.yield();
         }
     }
 
