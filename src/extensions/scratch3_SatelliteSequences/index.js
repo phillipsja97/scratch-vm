@@ -37,6 +37,8 @@ class Scratch3Satellite {
         // // eslint-disable-next-line no-console
         // console.log(svgg, 'svgggg');
 
+        // This is the base branch code.
+
 
         const svg2 = `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360" viewBox="0 0 210 297" version="1.1" id="svg2053">
                         <g>
