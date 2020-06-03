@@ -7,6 +7,7 @@ const vm = window.vm;
 const costumeData = require('./Assets/Satellites');
 const newCostume = require('./Assets/newCostume');
 const load = require('../../import/load-costume');
+const Lights = require('./Assets/newCostume');
 
 
 class Scratch3Satellite {
@@ -460,7 +461,14 @@ class Scratch3Satellite {
                 {
                     opcode: 'newCostume',
                     blockType: BlockType.COMMAND,
-                    text: 'Load A New Costume',
+                    text: 'Set [LIGHT]',
+                    arguments: {
+                        LIGHT: {
+                            type: ArgumentType.LIGHT,
+                            menu: 'lights',
+                            defaultValue: 'Light1'
+                        }
+                    }
                 }
             ],
             menus: {
@@ -494,67 +502,67 @@ class Scratch3Satellite {
                     items: [
                         {
                             text: 'Light1',
-                            value: 0
+                            value: 'Light1'
                         },
                         {
                             text: 'Light2',
-                            value: 1
+                            value: 'Light2'
                         },
                         {
                             text: 'Light3',
-                            value: 2
+                            value: 'Light3'
                         },
                         {
                             text: 'Light4',
-                            value: 3
+                            value: 'Light4'
                         },
                         {
                             text: 'Light5',
-                            value: 4
+                            value: 'Light5'
                         },
                         {
                             text: 'Light6',
-                            value: 5
+                            value: 'Light6'
                         },
                         {
                             text: 'Light7',
-                            value: 6
+                            value: 'Light7'
                         },
                         {
                             text: 'Light8',
-                            value: 7
+                            value: 'Light8'
                         },
                         {
                             text: 'Light9',
-                            value: 8
+                            value: 'Light9'
                         },
                         {
                             text: 'Light10',
-                            value: 9
+                            value: 'Light10'
                         },
                         {
                             text: 'Light11',
-                            value: 10
+                            value: 'Light11'
                         },
                         {
                             text: 'Light12',
-                            value: 11
+                            value: 'Light12'
                         },
                         {
                             text: 'Light13',
-                            value: 12
+                            value: 'Light13'
                         },
                         {
                             text: 'Light14',
-                            value: 13
+                            value: 'Light14'
                         },
                         {
                             text: 'Light15',
-                            value: 14
+                            value: 'Light15'
                         },
                         {
                             text: 'Light16',
-                            value: 15
+                            value: 'Light16'
                         }
                     ]
                 }
@@ -741,22 +749,16 @@ class Scratch3Satellite {
         // const storage = vm.runtime.storage;
         // const encoder = new TextEncoder();
         const theNewCostume = newCostume.newCostume;
-        // const newCostumeData = {};
-        // newCostumeData.asset = storage.createAsset(
-        //     storage.AssetType.ImageVector,
-        //     storage.DataFormat.SVG,
-        //     theNewCostume,
-        //     null,
-        //     true // generate md5
-        // );
-        // newCostumeData.dataFormat = storage.DataFormat.SVG;
-        // newCostumeData.assetId = newCostumeData.asset.assetId;
-        // newCostumeData.md5 = `${newCostumeData.assetId}.${newCostumeData.dataFormat}`;
-        // newCostumeData.name = 'Satellite1';
-        // newCostumeData.rotationCenterX = 28;
-        // newCostumeData.rotationCenterY = 23;
-        // load.loadCostumeFromAsset(newCostumeData, vm.runtime, null);
-        vm.updateSvg(util.target.currentCostume, theNewCostume, 28, 23);
+        const color = '#00ffe5';
+        theNewCostume.Light1 = `
+        fill="${color}"
+        strokeWidth="11"
+        />`;
+        const svg = Object.values(theNewCostume).join('');
+        const newSVG = Cast.toString(svg);
+        // eslint-disable-next-line no-console
+        console.log(newSVG, 'newCostume');
+        vm.updateSvg(util.target.currentCostume, newSVG, 28, 23);
         
     }
 
