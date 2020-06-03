@@ -3,13 +3,16 @@ const BlockType = require('../../extension-support/block-type');
 const Cast = require('../../util/cast');
 const MathUtil = require('../../util/math-util');
 const Scratch3LooksBlocks = require('../../blocks/scratch3_looks');
+const vm = window.vm;
 const costumeData = require('./Assets/Satellites');
+const newCostume = require('./Assets/newCostume');
+const load = require('../../import/load-costume');
 
 
 class Scratch3Satellite {
     constructor (runtime) {
         this.runtime = runtime;
-        const vm = window.vm;
+        // const vm = window.vm;
         const storage = runtime.storage;
 
         // This is the base branch code.
@@ -453,6 +456,11 @@ class Scratch3Satellite {
                             type: ArgumentType.NUMBER
                         }
                     }
+                },
+                {
+                    opcode: 'newCostume',
+                    blockType: BlockType.COMMAND,
+                    text: 'Load A New Costume',
                 }
             ],
             menus: {
@@ -727,6 +735,29 @@ class Scratch3Satellite {
         } else if (!util.stackTimerFinished()) {
             util.yield();
         }
+    }
+
+    newCostume (args, util) {
+        // const storage = vm.runtime.storage;
+        // const encoder = new TextEncoder();
+        const theNewCostume = newCostume.newCostume;
+        // const newCostumeData = {};
+        // newCostumeData.asset = storage.createAsset(
+        //     storage.AssetType.ImageVector,
+        //     storage.DataFormat.SVG,
+        //     theNewCostume,
+        //     null,
+        //     true // generate md5
+        // );
+        // newCostumeData.dataFormat = storage.DataFormat.SVG;
+        // newCostumeData.assetId = newCostumeData.asset.assetId;
+        // newCostumeData.md5 = `${newCostumeData.assetId}.${newCostumeData.dataFormat}`;
+        // newCostumeData.name = 'Satellite1';
+        // newCostumeData.rotationCenterX = 28;
+        // newCostumeData.rotationCenterY = 23;
+        // load.loadCostumeFromAsset(newCostumeData, vm.runtime, null);
+        vm.updateSvg(util.target.currentCostume, theNewCostume, 28, 23);
+        
     }
 
 }
