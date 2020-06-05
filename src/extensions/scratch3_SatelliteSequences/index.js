@@ -1,3 +1,4 @@
+/* eslint-disable no-return-assign */
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
 const Cast = require('../../util/cast');
@@ -7,6 +8,7 @@ const Scratch3LooksBlocks = require('../../blocks/scratch3_looks');
 const vm = window.vm;
 const costumeData = require('./Assets/Satellites');
 const newCostume = require('./Assets/newCostume');
+// const originalCostume = newCostume.newCostume;
 const load = require('../../import/load-costume');
 const Lights = require('./Assets/newCostume');
 
@@ -30,7 +32,7 @@ class Scratch3Satellite {
         const newSVG2 = encoder.encode(backdropCostume);
         
         const costume1SVG = encoder.encode(costumeData.costumes[0]);
-        // const costume2SVG = encoder.encode(costumeData.costumes[1]);
+        const costume2SVG = encoder.encode(costumeData.costumes[1]);
         // const costume3SVG = encoder.encode(costumeData.costumes[2]);
         // const costume4SVG = encoder.encode(costumeData.costumes[3]);
         // const costume5SVG = encoder.encode(costumeData.costumes[4]);
@@ -61,20 +63,20 @@ class Scratch3Satellite {
         costume1Data.rotationCenterX = 28;
         costume1Data.rotationCenterY = 23;
 
-        // const costume2Data = {};
-        // costume2Data.asset = storage.createAsset(
-        //     storage.AssetType.ImageVector,
-        //     storage.DataFormat.SVG,
-        //     costume2SVG,
-        //     null,
-        //     true // generate md5
-        // );
-        // costume2Data.dataFormat = storage.DataFormat.SVG;
-        // costume2Data.assetId = costume2Data.asset.assetId;
-        // costume2Data.md5 = `${costume2Data.assetId}.${costume2Data.dataFormat}`;
-        // costume2Data.name = 'Satellite2';
-        // costume2Data.rotationCenterX = 28;
-        // costume2Data.rotationCenterY = 23;
+        const costume2Data = {};
+        costume2Data.asset = storage.createAsset(
+            storage.AssetType.ImageVector,
+            storage.DataFormat.SVG,
+            costume2SVG,
+            null,
+            true // generate md5
+        );
+        costume2Data.dataFormat = storage.DataFormat.SVG;
+        costume2Data.assetId = costume2Data.asset.assetId;
+        costume2Data.md5 = `${costume2Data.assetId}.${costume2Data.dataFormat}`;
+        costume2Data.name = 'Satellite2';
+        costume2Data.rotationCenterX = 28;
+        costume2Data.rotationCenterY = 23;
 
         // const costume3Data = {};
         // costume3Data.asset = storage.createAsset(
@@ -330,7 +332,7 @@ class Scratch3Satellite {
                     blocks: {},
                     comments: {},
                     currentCostume: 0,
-                    costumes: [costume1Data],
+                    costumes: [costume1Data, costume2Data],
                     sounds: [],
                     volume: 100,
                     layerOrder: 1,
@@ -463,12 +465,34 @@ class Scratch3Satellite {
                 {
                     opcode: 'newCostume',
                     blockType: BlockType.COMMAND,
-                    text: 'Set [LIGHT]',
+                    text: 'Set [LIGHT] to [COLOR]',
                     arguments: {
                         LIGHT: {
                             type: ArgumentType.LIGHT,
-                            menu: 'lights',
+                            // menu: 'lights',
                             defaultValue: 'Light1'
+                        },
+                        COLOR: {
+                            type: ArgumentType.COLOR
+                            // menu: 'lights',
+                            // defaultValue: 'Light1'
+                        }
+                    }
+                },
+                {
+                    opcode: 'addLight',
+                    blockType: BlockType.REPORTER,
+                    text: 'Add Light [LIGHT] and [LIGHT2]',
+                    arguments: {
+                        LIGHT: {
+                            type: ArgumentType.LIGHT
+                            // menu: 'lights',
+                            // defaultValue: 'Light1'
+                        },
+                        LIGHT2: {
+                            type: ArgumentType.LIGHT
+                            // menu: 'lights',
+                            // defaultValue: 'Light1'
                         }
                     }
                 }
@@ -748,34 +772,32 @@ class Scratch3Satellite {
     }
 
     newCostume (args, util) {
-        // const currentCostume = vm.runtime.targets[1];
-        // const clonedSprite = Clone.simple(currentCostume);
-        // // eslint-disable-next-line no-console
-        // console.log(vm.runtime.targets);
-        // // eslint-disable-next-line no-console
-        // console.log(vm.runtime.targets[1].sprite.clones, 'cloned');
-        // const currentSVG = Object.values(originalCostume).join('');
-        // vm.updateSvg(util.target.currentCostume, currentSVG, 28, 23);
-        // const storage = vm.runtime.storage;
-        // const encoder = new TextEncoder();
-        const theNewCostume = newCostume.newCostume;
-        const color = '#00ffe5';
+        const newCostumeSVG = newCostume.newCostume;
+        const copyOfCostume = {};
+        Object.assign(copyOfCostume, newCostumeSVG);
+        const color = Cast.toString(args.COLOR);
         const light = Cast.toString(args.LIGHT);
-        // costume1Data.md5 = `${costume1Data.assetId}.${costume1Data.dataFormat}`;
-        // const objectPosition = theNewCostume.`${light}`;
-        // eslint-disable-next-line no-console
-        console.log(light, 'light');
-       
-        
-        theNewCostume[`${light}`] = `
-        fill="${color}"
-        strokeWidth="11"
-        />`;
-        const svg = Object.values(theNewCostume).join('');
+        const split = light.split(',');
+        split.map(item => {
+            return copyOfCostume[`${item}`] = `
+            fill="${color}"
+            strokeWidth="11"
+            />`;
+        });
+        const svg = Object.values(copyOfCostume).join('');
         const newSVG = Cast.toString(svg);
-        // // eslint-disable-next-line no-console
-        // console.log(newSVG, 'newCostume');
         vm.updateSvg(util.target.currentCostume, newSVG, 28, 23);
+    }
+
+    addLight (args) {
+        const light1 = Cast.toString(args.LIGHT);
+        const light2 = Cast.toString(args.LIGHT2);
+        const lights = [];
+        lights.push(light1);
+        lights.push(light2);
+        // eslint-disable-next-line no-console
+        console.log(lights);
+        return lights;
     }
 
 }
