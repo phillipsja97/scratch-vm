@@ -1,15 +1,22 @@
+/* eslint-disable no-return-assign */
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
 const Cast = require('../../util/cast');
 const MathUtil = require('../../util/math-util');
+const Clone = require('../../util/clone');
 const Scratch3LooksBlocks = require('../../blocks/scratch3_looks');
+const vm = window.vm;
 const costumeData = require('./Assets/Satellites');
+const newCostume = require('./Assets/newCostume');
+// const originalCostume = newCostume.newCostume;
+const load = require('../../import/load-costume');
+const Lights = require('./Assets/newCostume');
 
 
 class Scratch3Satellite {
     constructor (runtime) {
         this.runtime = runtime;
-        const vm = window.vm;
+        // const vm = window.vm;
         const storage = runtime.storage;
 
         // This is the base branch code.
@@ -26,20 +33,20 @@ class Scratch3Satellite {
         
         const costume1SVG = encoder.encode(costumeData.costumes[0]);
         const costume2SVG = encoder.encode(costumeData.costumes[1]);
-        const costume3SVG = encoder.encode(costumeData.costumes[2]);
-        const costume4SVG = encoder.encode(costumeData.costumes[3]);
-        const costume5SVG = encoder.encode(costumeData.costumes[4]);
-        const costume6SVG = encoder.encode(costumeData.costumes[5]);
-        const costume7SVG = encoder.encode(costumeData.costumes[6]);
-        const costume8SVG = encoder.encode(costumeData.costumes[7]);
-        const costume9SVG = encoder.encode(costumeData.costumes[8]);
-        const costume10SVG = encoder.encode(costumeData.costumes[9]);
-        const costume11SVG = encoder.encode(costumeData.costumes[10]);
-        const costume12SVG = encoder.encode(costumeData.costumes[11]);
-        const costume13SVG = encoder.encode(costumeData.costumes[12]);
-        const costume14SVG = encoder.encode(costumeData.costumes[13]);
-        const costume15SVG = encoder.encode(costumeData.costumes[14]);
-        const costume16SVG = encoder.encode(costumeData.costumes[15]);
+        // const costume3SVG = encoder.encode(costumeData.costumes[2]);
+        // const costume4SVG = encoder.encode(costumeData.costumes[3]);
+        // const costume5SVG = encoder.encode(costumeData.costumes[4]);
+        // const costume6SVG = encoder.encode(costumeData.costumes[5]);
+        // const costume7SVG = encoder.encode(costumeData.costumes[6]);
+        // const costume8SVG = encoder.encode(costumeData.costumes[7]);
+        // const costume9SVG = encoder.encode(costumeData.costumes[8]);
+        // const costume10SVG = encoder.encode(costumeData.costumes[9]);
+        // const costume11SVG = encoder.encode(costumeData.costumes[10]);
+        // const costume12SVG = encoder.encode(costumeData.costumes[11]);
+        // const costume13SVG = encoder.encode(costumeData.costumes[12]);
+        // const costume14SVG = encoder.encode(costumeData.costumes[13]);
+        // const costume15SVG = encoder.encode(costumeData.costumes[14]);
+        // const costume16SVG = encoder.encode(costumeData.costumes[15]);
 
         const costume1Data = {};
         costume1Data.asset = storage.createAsset(
@@ -71,215 +78,215 @@ class Scratch3Satellite {
         costume2Data.rotationCenterX = 28;
         costume2Data.rotationCenterY = 23;
 
-        const costume3Data = {};
-        costume3Data.asset = storage.createAsset(
-            storage.AssetType.ImageVector,
-            storage.DataFormat.SVG,
-            costume3SVG,
-            null,
-            true // generate md5
-        );
-        costume3Data.dataFormat = storage.DataFormat.SVG;
-        costume3Data.assetId = costume3Data.asset.assetId;
-        costume3Data.md5 = `${costume3Data.assetId}.${costume3Data.dataFormat}`;
-        costume3Data.name = 'Satellite3';
-        costume3Data.rotationCenterX = 28;
-        costume3Data.rotationCenterY = 23;
+        // const costume3Data = {};
+        // costume3Data.asset = storage.createAsset(
+        //     storage.AssetType.ImageVector,
+        //     storage.DataFormat.SVG,
+        //     costume3SVG,
+        //     null,
+        //     true // generate md5
+        // );
+        // costume3Data.dataFormat = storage.DataFormat.SVG;
+        // costume3Data.assetId = costume3Data.asset.assetId;
+        // costume3Data.md5 = `${costume3Data.assetId}.${costume3Data.dataFormat}`;
+        // costume3Data.name = 'Satellite3';
+        // costume3Data.rotationCenterX = 28;
+        // costume3Data.rotationCenterY = 23;
 
-        const costume4Data = {};
-        costume4Data.asset = storage.createAsset(
-            storage.AssetType.ImageVector,
-            storage.DataFormat.SVG,
-            costume4SVG,
-            null,
-            true // generate md5
-        );
-        costume4Data.dataFormat = storage.DataFormat.SVG;
-        costume4Data.assetId = costume4Data.asset.assetId;
-        costume4Data.md5 = `${costume4Data.assetId}.${costume4Data.dataFormat}`;
-        costume4Data.name = 'Satellite4';
-        costume4Data.rotationCenterX = 28;
-        costume4Data.rotationCenterY = 23;
+        // const costume4Data = {};
+        // costume4Data.asset = storage.createAsset(
+        //     storage.AssetType.ImageVector,
+        //     storage.DataFormat.SVG,
+        //     costume4SVG,
+        //     null,
+        //     true // generate md5
+        // );
+        // costume4Data.dataFormat = storage.DataFormat.SVG;
+        // costume4Data.assetId = costume4Data.asset.assetId;
+        // costume4Data.md5 = `${costume4Data.assetId}.${costume4Data.dataFormat}`;
+        // costume4Data.name = 'Satellite4';
+        // costume4Data.rotationCenterX = 28;
+        // costume4Data.rotationCenterY = 23;
 
-        const costume5Data = {};
-        costume5Data.asset = storage.createAsset(
-            storage.AssetType.ImageVector,
-            storage.DataFormat.SVG,
-            costume5SVG,
-            null,
-            true // generate md5
-        );
-        costume5Data.dataFormat = storage.DataFormat.SVG;
-        costume5Data.assetId = costume5Data.asset.assetId;
-        costume5Data.md5 = `${costume5Data.assetId}.${costume5Data.dataFormat}`;
-        costume5Data.name = 'Satellite5';
-        costume5Data.rotationCenterX = 28;
-        costume5Data.rotationCenterY = 23;
+        // const costume5Data = {};
+        // costume5Data.asset = storage.createAsset(
+        //     storage.AssetType.ImageVector,
+        //     storage.DataFormat.SVG,
+        //     costume5SVG,
+        //     null,
+        //     true // generate md5
+        // );
+        // costume5Data.dataFormat = storage.DataFormat.SVG;
+        // costume5Data.assetId = costume5Data.asset.assetId;
+        // costume5Data.md5 = `${costume5Data.assetId}.${costume5Data.dataFormat}`;
+        // costume5Data.name = 'Satellite5';
+        // costume5Data.rotationCenterX = 28;
+        // costume5Data.rotationCenterY = 23;
 
-        const costume6Data = {};
-        costume6Data.asset = storage.createAsset(
-            storage.AssetType.ImageVector,
-            storage.DataFormat.SVG,
-            costume6SVG,
-            null,
-            true // generate md5
-        );
-        costume6Data.dataFormat = storage.DataFormat.SVG;
-        costume6Data.assetId = costume6Data.asset.assetId;
-        costume6Data.md5 = `${costume6Data.assetId}.${costume6Data.dataFormat}`;
-        costume6Data.name = 'Satellite6';
-        costume6Data.rotationCenterX = 28;
-        costume6Data.rotationCenterY = 23;
+        // const costume6Data = {};
+        // costume6Data.asset = storage.createAsset(
+        //     storage.AssetType.ImageVector,
+        //     storage.DataFormat.SVG,
+        //     costume6SVG,
+        //     null,
+        //     true // generate md5
+        // );
+        // costume6Data.dataFormat = storage.DataFormat.SVG;
+        // costume6Data.assetId = costume6Data.asset.assetId;
+        // costume6Data.md5 = `${costume6Data.assetId}.${costume6Data.dataFormat}`;
+        // costume6Data.name = 'Satellite6';
+        // costume6Data.rotationCenterX = 28;
+        // costume6Data.rotationCenterY = 23;
 
-        const costume7Data = {};
-        costume7Data.asset = storage.createAsset(
-            storage.AssetType.ImageVector,
-            storage.DataFormat.SVG,
-            costume7SVG,
-            null,
-            true // generate md5
-        );
-        costume7Data.dataFormat = storage.DataFormat.SVG;
-        costume7Data.assetId = costume7Data.asset.assetId;
-        costume7Data.md5 = `${costume7Data.assetId}.${costume7Data.dataFormat}`;
-        costume7Data.name = 'Satellite7';
-        costume7Data.rotationCenterX = 28;
-        costume7Data.rotationCenterY = 23;
+        // const costume7Data = {};
+        // costume7Data.asset = storage.createAsset(
+        //     storage.AssetType.ImageVector,
+        //     storage.DataFormat.SVG,
+        //     costume7SVG,
+        //     null,
+        //     true // generate md5
+        // );
+        // costume7Data.dataFormat = storage.DataFormat.SVG;
+        // costume7Data.assetId = costume7Data.asset.assetId;
+        // costume7Data.md5 = `${costume7Data.assetId}.${costume7Data.dataFormat}`;
+        // costume7Data.name = 'Satellite7';
+        // costume7Data.rotationCenterX = 28;
+        // costume7Data.rotationCenterY = 23;
 
-        const costume8Data = {};
-        costume8Data.asset = storage.createAsset(
-            storage.AssetType.ImageVector,
-            storage.DataFormat.SVG,
-            costume8SVG,
-            null,
-            true // generate md5
-        );
-        costume8Data.dataFormat = storage.DataFormat.SVG;
-        costume8Data.assetId = costume8Data.asset.assetId;
-        costume8Data.md5 = `${costume8Data.assetId}.${costume8Data.dataFormat}`;
-        costume8Data.name = 'Satellite8';
-        costume8Data.rotationCenterX = 28;
-        costume8Data.rotationCenterY = 23;
+        // const costume8Data = {};
+        // costume8Data.asset = storage.createAsset(
+        //     storage.AssetType.ImageVector,
+        //     storage.DataFormat.SVG,
+        //     costume8SVG,
+        //     null,
+        //     true // generate md5
+        // );
+        // costume8Data.dataFormat = storage.DataFormat.SVG;
+        // costume8Data.assetId = costume8Data.asset.assetId;
+        // costume8Data.md5 = `${costume8Data.assetId}.${costume8Data.dataFormat}`;
+        // costume8Data.name = 'Satellite8';
+        // costume8Data.rotationCenterX = 28;
+        // costume8Data.rotationCenterY = 23;
 
-        const costume9Data = {};
-        costume9Data.asset = storage.createAsset(
-            storage.AssetType.ImageVector,
-            storage.DataFormat.SVG,
-            costume9SVG,
-            null,
-            true // generate md5
-        );
-        costume9Data.dataFormat = storage.DataFormat.SVG;
-        costume9Data.assetId = costume9Data.asset.assetId;
-        costume9Data.md5 = `${costume9Data.assetId}.${costume9Data.dataFormat}`;
-        costume9Data.name = 'Satellite9';
-        costume9Data.rotationCenterX = 28;
-        costume9Data.rotationCenterY = 23;
+        // const costume9Data = {};
+        // costume9Data.asset = storage.createAsset(
+        //     storage.AssetType.ImageVector,
+        //     storage.DataFormat.SVG,
+        //     costume9SVG,
+        //     null,
+        //     true // generate md5
+        // );
+        // costume9Data.dataFormat = storage.DataFormat.SVG;
+        // costume9Data.assetId = costume9Data.asset.assetId;
+        // costume9Data.md5 = `${costume9Data.assetId}.${costume9Data.dataFormat}`;
+        // costume9Data.name = 'Satellite9';
+        // costume9Data.rotationCenterX = 28;
+        // costume9Data.rotationCenterY = 23;
 
-        const costume10Data = {};
-        costume10Data.asset = storage.createAsset(
-            storage.AssetType.ImageVector,
-            storage.DataFormat.SVG,
-            costume10SVG,
-            null,
-            true // generate md5
-        );
-        costume10Data.dataFormat = storage.DataFormat.SVG;
-        costume10Data.assetId = costume10Data.asset.assetId;
-        costume10Data.md5 = `${costume10Data.assetId}.${costume10Data.dataFormat}`;
-        costume10Data.name = 'Satellite10';
-        costume10Data.rotationCenterX = 28;
-        costume10Data.rotationCenterY = 23;
+        // const costume10Data = {};
+        // costume10Data.asset = storage.createAsset(
+        //     storage.AssetType.ImageVector,
+        //     storage.DataFormat.SVG,
+        //     costume10SVG,
+        //     null,
+        //     true // generate md5
+        // );
+        // costume10Data.dataFormat = storage.DataFormat.SVG;
+        // costume10Data.assetId = costume10Data.asset.assetId;
+        // costume10Data.md5 = `${costume10Data.assetId}.${costume10Data.dataFormat}`;
+        // costume10Data.name = 'Satellite10';
+        // costume10Data.rotationCenterX = 28;
+        // costume10Data.rotationCenterY = 23;
 
-        const costume11Data = {};
-        costume11Data.asset = storage.createAsset(
-            storage.AssetType.ImageVector,
-            storage.DataFormat.SVG,
-            costume11SVG,
-            null,
-            true // generate md5
-        );
-        costume11Data.dataFormat = storage.DataFormat.SVG;
-        costume11Data.assetId = costume11Data.asset.assetId;
-        costume11Data.md5 = `${costume11Data.assetId}.${costume11Data.dataFormat}`;
-        costume11Data.name = 'Satellite11';
-        costume11Data.rotationCenterX = 28;
-        costume11Data.rotationCenterY = 23;
+        // const costume11Data = {};
+        // costume11Data.asset = storage.createAsset(
+        //     storage.AssetType.ImageVector,
+        //     storage.DataFormat.SVG,
+        //     costume11SVG,
+        //     null,
+        //     true // generate md5
+        // );
+        // costume11Data.dataFormat = storage.DataFormat.SVG;
+        // costume11Data.assetId = costume11Data.asset.assetId;
+        // costume11Data.md5 = `${costume11Data.assetId}.${costume11Data.dataFormat}`;
+        // costume11Data.name = 'Satellite11';
+        // costume11Data.rotationCenterX = 28;
+        // costume11Data.rotationCenterY = 23;
 
-        const costume12Data = {};
-        costume12Data.asset = storage.createAsset(
-            storage.AssetType.ImageVector,
-            storage.DataFormat.SVG,
-            costume12SVG,
-            null,
-            true // generate md5
-        );
-        costume12Data.dataFormat = storage.DataFormat.SVG;
-        costume12Data.assetId = costume12Data.asset.assetId;
-        costume12Data.md5 = `${costume12Data.assetId}.${costume12Data.dataFormat}`;
-        costume12Data.name = 'Satellite12';
-        costume12Data.rotationCenterX = 28;
-        costume12Data.rotationCenterY = 23;
+        // const costume12Data = {};
+        // costume12Data.asset = storage.createAsset(
+        //     storage.AssetType.ImageVector,
+        //     storage.DataFormat.SVG,
+        //     costume12SVG,
+        //     null,
+        //     true // generate md5
+        // );
+        // costume12Data.dataFormat = storage.DataFormat.SVG;
+        // costume12Data.assetId = costume12Data.asset.assetId;
+        // costume12Data.md5 = `${costume12Data.assetId}.${costume12Data.dataFormat}`;
+        // costume12Data.name = 'Satellite12';
+        // costume12Data.rotationCenterX = 28;
+        // costume12Data.rotationCenterY = 23;
 
-        const costume13Data = {};
-        costume13Data.asset = storage.createAsset(
-            storage.AssetType.ImageVector,
-            storage.DataFormat.SVG,
-            costume13SVG,
-            null,
-            true // generate md5
-        );
-        costume13Data.dataFormat = storage.DataFormat.SVG;
-        costume13Data.assetId = costume13Data.asset.assetId;
-        costume13Data.md5 = `${costume13Data.assetId}.${costume13Data.dataFormat}`;
-        costume13Data.name = 'Satellite13';
-        costume13Data.rotationCenterX = 28;
-        costume13Data.rotationCenterY = 23;
+        // const costume13Data = {};
+        // costume13Data.asset = storage.createAsset(
+        //     storage.AssetType.ImageVector,
+        //     storage.DataFormat.SVG,
+        //     costume13SVG,
+        //     null,
+        //     true // generate md5
+        // );
+        // costume13Data.dataFormat = storage.DataFormat.SVG;
+        // costume13Data.assetId = costume13Data.asset.assetId;
+        // costume13Data.md5 = `${costume13Data.assetId}.${costume13Data.dataFormat}`;
+        // costume13Data.name = 'Satellite13';
+        // costume13Data.rotationCenterX = 28;
+        // costume13Data.rotationCenterY = 23;
 
-        const costume14Data = {};
-        costume14Data.asset = storage.createAsset(
-            storage.AssetType.ImageVector,
-            storage.DataFormat.SVG,
-            costume14SVG,
-            null,
-            true // generate md5
-        );
-        costume14Data.dataFormat = storage.DataFormat.SVG;
-        costume14Data.assetId = costume14Data.asset.assetId;
-        costume14Data.md5 = `${costume14Data.assetId}.${costume14Data.dataFormat}`;
-        costume14Data.name = 'Satellite14';
-        costume14Data.rotationCenterX = 28;
-        costume14Data.rotationCenterY = 23;
+        // const costume14Data = {};
+        // costume14Data.asset = storage.createAsset(
+        //     storage.AssetType.ImageVector,
+        //     storage.DataFormat.SVG,
+        //     costume14SVG,
+        //     null,
+        //     true // generate md5
+        // );
+        // costume14Data.dataFormat = storage.DataFormat.SVG;
+        // costume14Data.assetId = costume14Data.asset.assetId;
+        // costume14Data.md5 = `${costume14Data.assetId}.${costume14Data.dataFormat}`;
+        // costume14Data.name = 'Satellite14';
+        // costume14Data.rotationCenterX = 28;
+        // costume14Data.rotationCenterY = 23;
 
-        const costume15Data = {};
-        costume15Data.asset = storage.createAsset(
-            storage.AssetType.ImageVector,
-            storage.DataFormat.SVG,
-            costume15SVG,
-            null,
-            true // generate md5
-        );
-        costume15Data.dataFormat = storage.DataFormat.SVG;
-        costume15Data.assetId = costume15Data.asset.assetId;
-        costume15Data.md5 = `${costume15Data.assetId}.${costume15Data.dataFormat}`;
-        costume15Data.name = 'Satellite15';
-        costume15Data.rotationCenterX = 28;
-        costume15Data.rotationCenterY = 23;
+        // const costume15Data = {};
+        // costume15Data.asset = storage.createAsset(
+        //     storage.AssetType.ImageVector,
+        //     storage.DataFormat.SVG,
+        //     costume15SVG,
+        //     null,
+        //     true // generate md5
+        // );
+        // costume15Data.dataFormat = storage.DataFormat.SVG;
+        // costume15Data.assetId = costume15Data.asset.assetId;
+        // costume15Data.md5 = `${costume15Data.assetId}.${costume15Data.dataFormat}`;
+        // costume15Data.name = 'Satellite15';
+        // costume15Data.rotationCenterX = 28;
+        // costume15Data.rotationCenterY = 23;
 
-        const costume16Data = {};
-        costume16Data.asset = storage.createAsset(
-            storage.AssetType.ImageVector,
-            storage.DataFormat.SVG,
-            costume16SVG,
-            null,
-            true // generate md5
-        );
-        costume16Data.dataFormat = storage.DataFormat.SVG;
-        costume16Data.assetId = costume16Data.asset.assetId;
-        costume16Data.md5 = `${costume16Data.assetId}.${costume16Data.dataFormat}`;
-        costume16Data.name = 'Satellite16';
-        costume16Data.rotationCenterX = 28;
-        costume16Data.rotationCenterY = 23;
+        // const costume16Data = {};
+        // costume16Data.asset = storage.createAsset(
+        //     storage.AssetType.ImageVector,
+        //     storage.DataFormat.SVG,
+        //     costume16SVG,
+        //     null,
+        //     true // generate md5
+        // );
+        // costume16Data.dataFormat = storage.DataFormat.SVG;
+        // costume16Data.assetId = costume16Data.asset.assetId;
+        // costume16Data.md5 = `${costume16Data.assetId}.${costume16Data.dataFormat}`;
+        // costume16Data.name = 'Satellite16';
+        // costume16Data.rotationCenterX = 28;
+        // costume16Data.rotationCenterY = 23;
 
         const backdrop = {};
         backdrop.asset = storage.createAsset(
@@ -325,7 +332,7 @@ class Scratch3Satellite {
                     blocks: {},
                     comments: {},
                     currentCostume: 0,
-                    costumes: [costume1Data, costume2Data, costume3Data, costume4Data, costume5Data, costume6Data, costume7Data, costume8Data, costume9Data, costume10Data, costume11Data, costume12Data, costume13Data, costume14Data, costume15Data, costume16Data],
+                    costumes: [costume1Data, costume2Data],
                     sounds: [],
                     volume: 100,
                     layerOrder: 1,
@@ -347,6 +354,7 @@ class Scratch3Satellite {
             }
         };
         vm.loadProject(JSON.stringify(newProject));
+        // costumes: [costume1Data, costume2Data, costume3Data, costume4Data, costume5Data, costume6Data, costume7Data, costume8Data, costume9Data, costume10Data, costume11Data, costume12Data, costume13Data, costume14Data, costume15Data, costume16Data],
     }
 
     getInfo () {
@@ -453,6 +461,40 @@ class Scratch3Satellite {
                             type: ArgumentType.NUMBER
                         }
                     }
+                },
+                {
+                    opcode: 'newCostume',
+                    blockType: BlockType.COMMAND,
+                    text: 'Set [LIGHT] to [COLOR]',
+                    arguments: {
+                        LIGHT: {
+                            type: ArgumentType.LIGHT,
+                            // menu: 'lights',
+                            defaultValue: 'Light1'
+                        },
+                        COLOR: {
+                            type: ArgumentType.COLOR
+                            // menu: 'lights',
+                            // defaultValue: 'Light1'
+                        }
+                    }
+                },
+                {
+                    opcode: 'addLight',
+                    blockType: BlockType.REPORTER,
+                    text: 'Add Light [LIGHT] and [LIGHT2]',
+                    arguments: {
+                        LIGHT: {
+                            type: ArgumentType.LIGHT
+                            // menu: 'lights',
+                            // defaultValue: 'Light1'
+                        },
+                        LIGHT2: {
+                            type: ArgumentType.LIGHT
+                            // menu: 'lights',
+                            // defaultValue: 'Light1'
+                        }
+                    }
                 }
             ],
             menus: {
@@ -486,67 +528,67 @@ class Scratch3Satellite {
                     items: [
                         {
                             text: 'Light1',
-                            value: 0
+                            value: 'Light1'
                         },
                         {
                             text: 'Light2',
-                            value: 1
+                            value: 'Light2'
                         },
                         {
                             text: 'Light3',
-                            value: 2
+                            value: 'Light3'
                         },
                         {
                             text: 'Light4',
-                            value: 3
+                            value: 'Light4'
                         },
                         {
                             text: 'Light5',
-                            value: 4
+                            value: 'Light5'
                         },
                         {
                             text: 'Light6',
-                            value: 5
+                            value: 'Light6'
                         },
                         {
                             text: 'Light7',
-                            value: 6
+                            value: 'Light7'
                         },
                         {
                             text: 'Light8',
-                            value: 7
+                            value: 'Light8'
                         },
                         {
                             text: 'Light9',
-                            value: 8
+                            value: 'Light9'
                         },
                         {
                             text: 'Light10',
-                            value: 9
+                            value: 'Light10'
                         },
                         {
                             text: 'Light11',
-                            value: 10
+                            value: 'Light11'
                         },
                         {
                             text: 'Light12',
-                            value: 11
+                            value: 'Light12'
                         },
                         {
                             text: 'Light13',
-                            value: 12
+                            value: 'Light13'
                         },
                         {
                             text: 'Light14',
-                            value: 13
+                            value: 'Light14'
                         },
                         {
                             text: 'Light15',
-                            value: 14
+                            value: 'Light15'
                         },
                         {
                             text: 'Light16',
-                            value: 15
+                            value: 'Light16'
                         }
                     ]
                 }
@@ -727,6 +769,35 @@ class Scratch3Satellite {
         } else if (!util.stackTimerFinished()) {
             util.yield();
         }
+    }
+
+    newCostume (args, util) {
+        const newCostumeSVG = newCostume.newCostume;
+        const copyOfCostume = {};
+        Object.assign(copyOfCostume, newCostumeSVG);
+        const color = Cast.toString(args.COLOR);
+        const light = Cast.toString(args.LIGHT);
+        const split = light.split(',');
+        split.map(item => {
+            return copyOfCostume[`${item}`] = `
+            fill="${color}"
+            strokeWidth="11"
+            />`;
+        });
+        const svg = Object.values(copyOfCostume).join('');
+        const newSVG = Cast.toString(svg);
+        vm.updateSvg(util.target.currentCostume, newSVG, 28, 23);
+    }
+
+    addLight (args) {
+        const light1 = Cast.toString(args.LIGHT);
+        const light2 = Cast.toString(args.LIGHT2);
+        const lights = [];
+        lights.push(light1);
+        lights.push(light2);
+        // eslint-disable-next-line no-console
+        console.log(lights);
+        return lights;
     }
 
 }

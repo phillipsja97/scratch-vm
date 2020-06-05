@@ -258,6 +258,8 @@ const loadBitmap_ = function (costume, runtime, _rotationCenter) {
  * @returns {?Promise} - a promise which will resolve after skinId is set, or null on error.
  */
 const loadCostumeFromAsset = function (costume, runtime, optVersion) {
+    // eslint-disable-next-line no-console
+    console.log(optVersion, 'optVersion');
     costume.assetId = costume.asset.assetId;
     const renderer = runtime.renderer;
     if (!renderer) {
