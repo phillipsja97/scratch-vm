@@ -12,7 +12,7 @@ const newCostume = require('./Assets/newCostume');
 const load = require('../../import/load-costume');
 const Lights = require('./Assets/newCostume');
 const original = require('./Assets/originalCostume');
-const lights = require('./Assets/originalCostume');
+const positions = require('./Assets/originalCostume');
 
 
 class Scratch3Satellite {
@@ -30,8 +30,6 @@ class Scratch3Satellite {
 
         const encoder = new TextEncoder();
         const newSVG2 = encoder.encode(backdropCostume);
-        // eslint-disable-next-line no-console
-        console.log(original.originalCostume, 'originals');
         const mainSVG = original.originalCostume;
         const svg = Object.values(mainSVG).join('');
         // eslint-disable-next-line no-console
@@ -779,22 +777,20 @@ class Scratch3Satellite {
     }
 
     newCostume (args, util) {
-        // eslint-disable-next-line no-console
-        // console.log(util.target, 'targets');
         const newCostumeSVG = original.originalCostume;
         const copyOfCostume = {};
         Object.assign(copyOfCostume, newCostumeSVG);
         const color = Cast.toString(args.COLOR);
-        // eslint-disable-next-line no-console
-        console.log(color, 'color');
         const light = Cast.toString(args.LIGHT);
-        const split = light.split(',');
-        split.map(item => copyOfCostume[`${item}`] = `"${color}"`);
+        const length = light.length;
+        if (length > 1) {
+            const split = light.split(',');
+            split.map(item => copyOfCostume[`${item}`] = `"${color}"`);
+        } else {
+            copyOfCostume[`${light}`] = `"${color}"`;
+        }
         const svg = Object.values(copyOfCostume).join('');
-        const newSVG = Cast.toString(svg);
-        // eslint-disable-next-line no-console
-        console.log(newSVG, 'newSVG');
-        vm.updateSvg(util.target.currentCostume, newSVG, 28, 23);
+        vm.updateSvg(util.target.currentCostume, svg, 28, 23);
     }
 
     addLight (args) {
