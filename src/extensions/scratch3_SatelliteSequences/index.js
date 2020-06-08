@@ -12,7 +12,8 @@ const newCostume = require('./Assets/newCostume');
 const load = require('../../import/load-costume');
 const Lights = require('./Assets/newCostume');
 const original = require('./Assets/originalCostume');
-const positions = require('./Assets/originalCostume');
+const prevPositions = [];
+let continueColor = '';
 
 
 class Scratch3Satellite {
@@ -500,6 +501,11 @@ class Scratch3Satellite {
                             // defaultValue: 'Light1'
                         }
                     }
+                },
+                {
+                    opcode: 'rotateOneClockwise',
+                    blockType: BlockType.COMMAND,
+                    text: 'Rotate One Spot Clockwise'
                 }
             ],
             menus: {
@@ -716,8 +722,11 @@ class Scratch3Satellite {
 
     wait (args, util) {
         if (util.stackTimerNeedsInit()) {
+            // eslint-disable-next-line no-console
+            console.log(args.DURATION, 'duration');
             const duration = Math.max(0, 1000 * Cast.toNumber(args.DURATION));
-
+            // eslint-disable-next-line no-console
+            console.log(duration, 'duration');
             util.startStackTimer(duration);
             this.runtime.requestRedraw();
             util.yield();
@@ -780,14 +789,27 @@ class Scratch3Satellite {
         const newCostumeSVG = original.originalCostume;
         const copyOfCostume = {};
         Object.assign(copyOfCostume, newCostumeSVG);
+        // prevPositions.length = 0;
         const color = Cast.toString(args.COLOR);
+        continueColor = color;
         const light = Cast.toString(args.LIGHT);
         const length = light.length;
         if (length > 1) {
+            if (prevPositions.length > 0) {
+                prevPositions.length = 0;
+            }
             const split = light.split(',');
-            split.map(item => copyOfCostume[`${item}`] = `"${color}"`);
+            split.map(x => prevPositions.push(x));
+            // eslint-disable-next-line no-console
+            console.log(prevPositions, 'prevState');
+            split.map(item => copyOfCostume[`Light${item}`] = `"${color}"`);
+            // eslint-disable-next-line no-console
+            console.log(prevPositions, 'prev');
         } else {
-            copyOfCostume[`${light}`] = `"${color}"`;
+            copyOfCostume[`Light${light}`] = `"${color}"`;
+            prevPositions.push(light);
+            // eslint-disable-next-line no-console
+            console.log(prevPositions, 'prev');
         }
         const svg = Object.values(copyOfCostume).join('');
         vm.updateSvg(util.target.currentCostume, svg, 28, 23);
@@ -802,6 +824,41 @@ class Scratch3Satellite {
         // eslint-disable-next-line no-console
         console.log(lights);
         return lights;
+    }
+
+    rotateOneClockwise (args, util) {
+        const newCostumeSVG = original.originalCostume;
+        const copyOfCostume = {};
+        Object.assign(copyOfCostume, newCostumeSVG);
+        // const changePositions = prevPositions.split(',');
+        const length = prevPositions.length;
+        const newPositions = [];
+        // eslint-disable-next-line array-callback-return
+        prevPositions.forEach(position => {
+            // eslint-disable-next-line no-console
+            console.log(position, 'position');
+            let newPosition = (+position + Cast.toNumber(1));
+            if (newPosition === 17){
+                newPosition = 1;
+            }
+            // eslint-disable-next-line no-console
+            console.log(newPosition, 'newPosition');
+            copyOfCostume[`Light${newPosition}`] = `"${continueColor}"`;
+            newPositions.push(newPosition);
+            // eslint-disable-next-line no-console
+            console.log(prevPositions, 'should be new');
+        });
+        const svg = Object.values(copyOfCostume).join('');
+        vm.updateSvg(util.target.currentCostume, svg, 28, 23);
+        prevPositions.length = 0;
+        // eslint-disable-next-line no-console
+        console.log(prevPositions, 'sliced');
+        // eslint-disable-next-line array-callback-return
+        newPositions.map(move => {
+            prevPositions.push(move);
+        });
+        // eslint-disable-next-line no-console
+        console.log(prevPositions, 're-added');
     }
 
 }
