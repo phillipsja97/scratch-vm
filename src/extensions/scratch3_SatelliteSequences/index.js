@@ -776,7 +776,8 @@ class Scratch3Satellite {
     sequenceSpeed (args, util) {
         if (util.stackTimerNeedsInit()) {
             const duration = Math.max(0, 10 * Cast.toNumber(args.DURATION));
-
+            // eslint-disable-next-line no-console
+            console.log(duration, 'duration');
             util.startStackTimer(duration);
             this.runtime.requestRedraw();
             util.yield();
@@ -806,6 +807,9 @@ class Scratch3Satellite {
             // eslint-disable-next-line no-console
             console.log(prevPositions, 'prev');
         } else {
+            if (prevPositions.length > 0) {
+                prevPositions.length = 0;
+            }
             copyOfCostume[`Light${light}`] = `"${color}"`;
             prevPositions.push(light);
             // eslint-disable-next-line no-console
@@ -838,7 +842,7 @@ class Scratch3Satellite {
             // eslint-disable-next-line no-console
             console.log(position, 'position');
             let newPosition = (+position + Cast.toNumber(1));
-            if (newPosition === 17){
+            if (newPosition === 17) {
                 newPosition = 1;
             }
             // eslint-disable-next-line no-console
