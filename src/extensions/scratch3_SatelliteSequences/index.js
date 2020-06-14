@@ -1,9 +1,11 @@
+/* eslint-disable no-loop-func */
 /* eslint-disable no-return-assign */
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
 const Cast = require('../../util/cast');
 const MathUtil = require('../../util/math-util');
 const Clone = require('../../util/clone');
+const Timer = require('../../util/Timer');
 const Scratch3LooksBlocks = require('../../blocks/scratch3_looks');
 const vm = window.vm;
 const costumeData = require('./Assets/Satellites');
@@ -13,7 +15,8 @@ const load = require('../../import/load-costume');
 const Lights = require('./Assets/newCostume');
 const original = require('./Assets/originalCostume');
 const prevPositions = [];
-let continueColor = '';
+let continueColor = [];
+// let currentTarget = '';
 
 
 class Scratch3Satellite {
@@ -471,18 +474,18 @@ class Scratch3Satellite {
                 {
                     opcode: 'newCostume',
                     blockType: BlockType.COMMAND,
-                    text: 'Set [LIGHT] to [COLOR]',
+                    text: 'Set [LIGHT]',
                     arguments: {
                         LIGHT: {
                             type: ArgumentType.LIGHT,
                             // menu: 'lights',
                             defaultValue: 'Light1'
-                        },
-                        COLOR: {
-                            type: ArgumentType.COLOR
-                            // menu: 'lights',
-                            // defaultValue: 'Light1'
                         }
+                        // COLOR: {
+                        //     type: ArgumentType.COLOR
+                        //     // menu: 'lights',
+                        //     // defaultValue: 'Light1'
+                        // }
                     }
                 },
                 {
@@ -786,34 +789,58 @@ class Scratch3Satellite {
         }
     }
 
+    sequenceSpeedDependent (util) {
+        if (util.stackTimerNeedsInit()) {
+            const duration = Math.max(0, 10 * Cast.toNumber(100));
+            // eslint-disable-next-line no-console
+            console.log(duration, 'duration');
+            util.startStackTimer(duration);
+            this.runtime.requestRedraw();
+            util.yield();
+        } else if (!util.stackTimerFinished()) {
+            util.yield();
+        }
+    }
+
     newCostume (args, util) {
         const newCostumeSVG = original.originalCostume;
         const copyOfCostume = {};
         Object.assign(copyOfCostume, newCostumeSVG);
-        // prevPositions.length = 0;
-        const color = Cast.toString(args.COLOR);
-        continueColor = color;
         const light = Cast.toString(args.LIGHT);
-        const length = light.length;
+        let color = '';
+        const splitForFilter = light.split('#');
+        const filteredList = splitForFilter.filter(e => e === 0 || e);
+        let length = filteredList.length;
         if (length > 1) {
             if (prevPositions.length > 0) {
                 prevPositions.length = 0;
             }
-            const split = light.split(',');
-            split.map(x => prevPositions.push(x));
-            // eslint-disable-next-line no-console
-            console.log(prevPositions, 'prevState');
-            split.map(item => copyOfCostume[`Light${item}`] = `"${color}"`);
-            // eslint-disable-next-line no-console
-            console.log(prevPositions, 'prev');
+            let i = 0;
+            while (length > 0) {
+                const stringToEdit = filteredList[i];
+                prevPositions.push(stringToEdit);
+                const splitString = stringToEdit.split(',');
+                const filteredString = splitString.filter(e => e === 0 || e);
+                const theColor = filteredString.splice(0, 1);
+                color = theColor;
+                // eslint-disable-next-line no-loop-func
+                filteredString.map(item => copyOfCostume[`Light${item}`] = `"#${color}"`);
+                continueColor.push(color);
+                i++;
+                length--;
+            }
         } else {
             if (prevPositions.length > 0) {
                 prevPositions.length = 0;
             }
-            copyOfCostume[`Light${light}`] = `"${color}"`;
+            const toSplit = light.toString();
             prevPositions.push(light);
-            // eslint-disable-next-line no-console
-            console.log(prevPositions, 'prev');
+            const stringToEdit = toSplit.split(',');
+            const filteredString = stringToEdit.filter(e => e === 0 || e);
+            const theColor = filteredString.splice(0, 1);
+            color = theColor;
+            // eslint-disable-next-line no-loop-func
+            filteredString.map(item => copyOfCostume[`Light${item}`] = `"${color}"`);
         }
         const svg = Object.values(copyOfCostume).join('');
         vm.updateSvg(util.target.currentCostume, svg, 28, 23);
@@ -825,8 +852,6 @@ class Scratch3Satellite {
         const lights = [];
         lights.push(light1);
         lights.push(light2);
-        // eslint-disable-next-line no-console
-        console.log(lights);
         return lights;
     }
 
@@ -834,35 +859,62 @@ class Scratch3Satellite {
         const newCostumeSVG = original.originalCostume;
         const copyOfCostume = {};
         Object.assign(copyOfCostume, newCostumeSVG);
-        // const changePositions = prevPositions.split(',');
-        const length = prevPositions.length;
         const newPositions = [];
-        // eslint-disable-next-line array-callback-return
-        prevPositions.forEach(position => {
-            // eslint-disable-next-line no-console
-            console.log(position, 'position');
-            let newPosition = (+position + Cast.toNumber(1));
-            if (newPosition === 17) {
-                newPosition = 1;
+        let color = '';
+        let length = prevPositions.length;
+        const tempArray = [];
+        if (length > 1) {
+            let i = 0;
+            while (length > 0) {
+                const stringToEdit = prevPositions[i];
+                const splitString = stringToEdit.split(',');
+                const filteredString = splitString.filter(e => e === 0 || e);
+                const theColor = filteredString.splice(0, 1);
+                color = theColor;
+                tempArray.push(color);
+                filteredString.forEach(item => {
+                    let newPosition = (+item + Cast.toNumber(1));
+                    if (newPosition === 17) {
+                        newPosition = 1;
+                    }
+                    copyOfCostume[`Light${newPosition}`] = `"#${color}"`;
+                    tempArray.push(newPosition);
+                });
+                // eslint-disable-next-line no-loop-func
+                i++;
+                length--;
+                let tempString = tempArray.join();
+                newPositions.push(tempString);
+                tempString = '';
+                tempArray.length = 0;
             }
-            // eslint-disable-next-line no-console
-            console.log(newPosition, 'newPosition');
-            copyOfCostume[`Light${newPosition}`] = `"${continueColor}"`;
-            newPositions.push(newPosition);
-            // eslint-disable-next-line no-console
-            console.log(prevPositions, 'should be new');
-        });
+        } else {
+            const singleLine = prevPositions.join();
+            const singleString = singleLine.split(',');
+            const theColor = singleString.splice(0, 1);
+            color = theColor;
+            tempArray.push(color);
+            // eslint-disable-next-line no-loop-func
+            singleString.map(item => {
+                let newPosition = (+item + Cast.toNumber(1));
+                if (newPosition === 17) {
+                    newPosition = 1;
+                }
+                copyOfCostume[`Light${newPosition}`] = `"${color}"`;
+                tempArray.push(newPosition);
+            });
+            let tempString = tempArray.join();
+            newPositions.push(tempString);
+            tempString = '';
+            tempArray.length = 0;
+        }
         const svg = Object.values(copyOfCostume).join('');
         vm.updateSvg(util.target.currentCostume, svg, 28, 23);
         prevPositions.length = 0;
-        // eslint-disable-next-line no-console
-        console.log(prevPositions, 'sliced');
         // eslint-disable-next-line array-callback-return
         newPositions.map(move => {
             prevPositions.push(move);
         });
-        // eslint-disable-next-line no-console
-        console.log(prevPositions, 're-added');
     }
 
 }
