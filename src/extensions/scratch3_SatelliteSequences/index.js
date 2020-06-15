@@ -818,19 +818,23 @@ class Scratch3Satellite {
         const copyOfCostume = {};
         Object.assign(copyOfCostume, newCostumeSVG);
         const light = Cast.toString(args.LIGHT);
+        // eslint-disable-next-line no-console
+        console.log(light, 'light');
         let color = '';
-        const splitForFilter = light.split('#');
-        const filteredList = splitForFilter.filter(e => e === 0 || e);
-        let length = filteredList.length;
-        if (length > 1) {
+        // const splitForFilter = light.split(',');
+        // const filteredList = splitForFilter.filter(e => e === 0 || e);
+        if (light.includes(',')) {
             if (prevPositions.length > 0) {
                 prevPositions.length = 0;
             }
             let i = 0;
+            const splitForFilter = light.split(',');
+            const filteredList = splitForFilter.filter(e => e === 0 || e);
+            let length = filteredList.length;
             while (length > 0) {
                 const stringToEdit = filteredList[i];
                 // prevPositions.push(stringToEdit);
-                const splitString = stringToEdit.split(',');
+                const splitString = stringToEdit.split(' ');
                 const filteredString = splitString.filter(e => e === 0 || e);
                 const theColor = filteredString.splice(0, 1);
                 color = theColor;
@@ -849,13 +853,13 @@ class Scratch3Satellite {
             }
             const toSplit = light.toString();
             // prevPositions.push(light);
-            const stringToEdit = toSplit.split(',');
+            const stringToEdit = toSplit.split(' ');
             const filteredString = stringToEdit.filter(e => e === 0 || e);
             const theColor = filteredString.splice(0, 1);
             color = theColor;
             const positions = this.convertBase(filteredString);
             const absolute = positions.map(pos => +pos + Cast.toNumber(1));
-            absolute.map(item => copyOfCostume[`Light${item}`] = `"${color}"`);
+            absolute.map(item => copyOfCostume[`Light${item}`] = `"#${color}"`);
             absolute.unshift(Cast.toString(color));
             prevPositions.push(absolute.toString());
             // eslint-disable-next-line no-loop-func
@@ -919,7 +923,7 @@ class Scratch3Satellite {
                 if (newPosition === 17) {
                     newPosition = 1;
                 }
-                copyOfCostume[`Light${newPosition}`] = `"${color}"`;
+                copyOfCostume[`Light${newPosition}`] = `"#${color}"`;
                 tempArray.push(newPosition);
             });
             let tempString = tempArray.join();
