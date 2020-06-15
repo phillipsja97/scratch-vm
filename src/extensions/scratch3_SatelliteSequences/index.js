@@ -835,15 +835,11 @@ class Scratch3Satellite {
                 const theColor = filteredString.splice(0, 1);
                 color = theColor;
                 const positions = this.convertBase(filteredString);
-                // let absolutePositions = [];
                 const absolute = positions.map(pos => +pos + Cast.toNumber(1));
-                // positions.forEach(pos => +pos + 1);
                 // eslint-disable-next-line no-loop-func
-                // eslint-disable-next-line no-console
-                console.log(absolute, 'absolute');
                 absolute.map(item => copyOfCostume[`Light${item}`] = `"#${color}"`);
-                prevPositions.push(positions);
-                continueColor.push(color);
+                absolute.unshift(Cast.toString(color));
+                prevPositions.push(absolute.toString());
                 i++;
                 length--;
             }
@@ -852,13 +848,18 @@ class Scratch3Satellite {
                 prevPositions.length = 0;
             }
             const toSplit = light.toString();
-            prevPositions.push(light);
+            // prevPositions.push(light);
             const stringToEdit = toSplit.split(',');
             const filteredString = stringToEdit.filter(e => e === 0 || e);
             const theColor = filteredString.splice(0, 1);
             color = theColor;
+            const positions = this.convertBase(filteredString);
+            const absolute = positions.map(pos => +pos + Cast.toNumber(1));
+            absolute.map(item => copyOfCostume[`Light${item}`] = `"${color}"`);
+            absolute.unshift(Cast.toString(color));
+            prevPositions.push(absolute.toString());
             // eslint-disable-next-line no-loop-func
-            filteredString.map(item => copyOfCostume[`Light${item}`] = `"${color}"`);
+            // filteredString.map(item => copyOfCostume[`Light${item}`] = `"${color}"`);
         }
         const svg = Object.values(copyOfCostume).join('');
         vm.updateSvg(util.target.currentCostume, svg, 28, 23);
