@@ -14,6 +14,7 @@ const newCostume = require('./Assets/newCostume');
 const load = require('../../import/load-costume');
 const Lights = require('./Assets/newCostume');
 const original = require('./Assets/originalCostume');
+const Conversion = require('./hexToBinary');
 const prevPositions = [];
 let continueColor = [];
 // let currentTarget = '';
@@ -509,6 +510,16 @@ class Scratch3Satellite {
                     opcode: 'rotateOneClockwise',
                     blockType: BlockType.COMMAND,
                     text: 'Rotate One Spot Clockwise'
+                },
+                {
+                    opcode: 'convertBase',
+                    blockType: BlockType.COMMAND,
+                    text: 'Convert [NUMBER]',
+                    arguments: {
+                        NUMBER: {
+                            type: ArgumentType.NUMBER
+                        }
+                    }
                 }
             ],
             menus: {
@@ -818,13 +829,20 @@ class Scratch3Satellite {
             let i = 0;
             while (length > 0) {
                 const stringToEdit = filteredList[i];
-                prevPositions.push(stringToEdit);
+                // prevPositions.push(stringToEdit);
                 const splitString = stringToEdit.split(',');
                 const filteredString = splitString.filter(e => e === 0 || e);
                 const theColor = filteredString.splice(0, 1);
                 color = theColor;
+                const positions = this.convertBase(filteredString);
+                // let absolutePositions = [];
+                const absolute = positions.map(pos => +pos + Cast.toNumber(1));
+                // positions.forEach(pos => +pos + 1);
                 // eslint-disable-next-line no-loop-func
-                filteredString.map(item => copyOfCostume[`Light${item}`] = `"#${color}"`);
+                // eslint-disable-next-line no-console
+                console.log(absolute, 'absolute');
+                absolute.map(item => copyOfCostume[`Light${item}`] = `"#${color}"`);
+                prevPositions.push(positions);
                 continueColor.push(color);
                 i++;
                 length--;
@@ -915,6 +933,39 @@ class Scratch3Satellite {
         newPositions.map(move => {
             prevPositions.push(move);
         });
+    }
+
+    convertBase (hex) {
+        const convert = (baseFrom, baseTo) => number => parseInt(number, baseFrom).toString(baseTo);
+        const hex2bin = convert(16, 2);
+        const result = hex2bin(hex);
+        // eslint-disable-next-line no-console
+        console.log(result, 'binary');
+        // eslint-disable-next-line no-console
+        console.log(result.length, 'binaryLength');
+        let newResult = '';
+        if (result.length < 16){
+            newResult = result.padStart(16, 0);
+        } else {
+            newResult = result;
+        }
+        return this.tracePosition(newResult);
+    }
+
+    tracePosition (binary) {
+        const binaryString = binary;
+        const splittedString = binaryString.split('');
+        const filtered = splittedString.filter(Number);
+        let length = filtered.length;
+        const tempPositions = [];
+        while (length > 0) {
+            const indexOfPosition = splittedString.indexOf('1');
+            const value = indexOfPosition;
+            splittedString.splice(indexOfPosition, 1, '0');
+            tempPositions.push(value);
+            length--;
+        }
+        return tempPositions;
     }
 
 }
