@@ -940,10 +940,6 @@ class Scratch3Satellite {
         const convert = (baseFrom, baseTo) => number => parseInt(number, baseFrom).toString(baseTo);
         const hex2bin = convert(16, 2);
         const result = hex2bin(hex);
-        // eslint-disable-next-line no-console
-        console.log(result, 'binary');
-        // eslint-disable-next-line no-console
-        console.log(result.length, 'binaryLength');
         let newResult = '';
         if (result.length < 16){
             newResult = result.padStart(16, 0);
