@@ -12,11 +12,12 @@ const costumeData = require('./Assets/Satellites');
 const newCostume = require('./Assets/newCostume');
 // const originalCostume = newCostume.newCostume;
 const load = require('../../import/load-costume');
+
 const Lights = require('./Assets/newCostume');
 const original = require('./Assets/originalCostume');
-const Conversion = require('./hexToBinary');
+const Conversion = require('./parse-sequence');
 const prevPositions = [];
-let continueColor = [];
+let theTime = '';
 // let currentTarget = '';
 
 
@@ -520,6 +521,11 @@ class Scratch3Satellite {
                             type: ArgumentType.NUMBER
                         }
                     }
+                },
+                {
+                    opcode: 'sequence',
+                    blockType: BlockType.COMMAND,
+                    text: 'Sequence'
                 }
             ],
             menus: {
@@ -811,62 +817,362 @@ class Scratch3Satellite {
         } else if (!util.stackTimerFinished()) {
             util.yield();
         }
+        // eslint-disable-next-line no-console
+        console.log(util, 'utilFromSequence');
     }
 
+    // newCostume (args, util) {
+    //     const newCostumeSVGBoth = original.originalCostume;
+    //     const copyOfCostumeCombined = {};
+    //     Object.assign(copyOfCostumeCombined, newCostumeSVGBoth);
+    //     const costumesArray = [];
+    //     const timingArray = [];
+    //     const light = Cast.toString(args.LIGHT);
+    //     // eslint-disable-next-line no-console
+    //     console.log(light, 'light');
+    //     let color = '';
+    //     // const splitForFilter = light.split(',');
+    //     // const filteredList = splitForFilter.filter(e => e === 0 || e);
+    //     if (light.includes(',')) {
+    //         if (prevPositions.length > 0) {
+    //             prevPositions.length = 0;
+    //         }
+    //         let i = 0;
+    //         const splitForFilter = light.split(',');
+    //         const filteredList = splitForFilter.filter(e => e === 0 || e);
+    //         let length = filteredList.length;
+    //         let j = 0;
+    // while (length > 0) {
+    //     const theSlice = filteredList[j].slice(12);
+    //     timingArray.push(theSlice);
+    //     length--;
+    //     j++;
+    // }
+    // if (this.equalTiming(timingArray)) {
+    // let s = 0;
+    // while (length > 0) {
+    //     const splitForCostume = light.split(',');
+    //     const splitList = splitForCostume.filter(e => e === 0 || e);
+    //     // eslint-disable-next-line no-console
+    //     console.log(splitList, 'splitList');
+    //     const stringToEdit = splitList[s];
+    //     const splitString = stringToEdit.split(' ');
+    //     const filteredString = splitString.filter(e => e === 0 || e);
+    //     const theColor = filteredString.splice(0, 1);
+    //     theTime = filteredString.pop();
+    //     // timingArray.push(theTime);
+    //     color = theColor;
+    //     const positions = this.convertBase(filteredString);
+    //     const absolute = positions.map(pos => +pos + Cast.toNumber(1));
+    //     // eslint-disable-next-line no-loop-func
+    //     absolute.map(item => copyOfCostumeCombined[`Light${item}`] = `"#${color}"`);
+    //     absolute.unshift(Cast.toString(color));
+    //     prevPositions.push(absolute.toString());
+    //     // costumesArray.push(svg);
+    //     // vm.updateSvg(util.target.currentCostume, svg, 28, 23);
+    //     i++;
+    //     s++;
+    //     length--;
+    // }
+    // const svg = Object.values(copyOfCostumeCombined).join('');
+    // this.setCostumeSequence(util, svg, theTime);
+    // this.setEqualTimingSequence(light, util, copyOfCostumeCombined, color, length);
+// } else {
+    // while (length > 0) {
+    //     const newCostumeSVG = original.originalCostume;
+    //     const copyOfCostume = {};
+    //     Object.assign(copyOfCostume, newCostumeSVG);
+    //     const stringToEdit = filteredList[i];
+    //     // prevPositions.push(stringToEdit);
+    //     const splitString = stringToEdit.split(' ');
+    //     const filteredString = splitString.filter(e => e === 0 || e);
+    //     const theColor = filteredString.splice(0, 1);
+    //     theTime = filteredString.pop();
+    //     // timingArray.push(theTime);
+    //     color = theColor;
+    //     const positions = this.convertBase(filteredString);
+    //     const absolute = positions.map(pos => +pos + Cast.toNumber(1));
+    //     // eslint-disable-next-line no-loop-func
+    //     absolute.map(item => copyOfCostume[`Light${item}`] = `"#${color}"`);
+    //     absolute.unshift(Cast.toString(color));
+    //     prevPositions.push(absolute.toString());
+    //     const svg = Object.values(copyOfCostume).join('');
+    //     // costumesArray.push(svg);
+    //     this.setCostumeSequence(util, svg, theTime);
+    //     // vm.updateSvg(util.target.currentCostume, svg, 28, 23);
+    //     i++;
+    //     k++;
+    //     length--;
+    // copyOfCostume = {};
+    //         this.setSeparateTimingSequence(length, color, filteredList, util, costumesArray);
+    //         // }
+    //     } else {
+    //         if (prevPositions.length > 0) {
+    //             prevPositions.length = 0;
+    //         }
+    //         const newCostumeSVG = original.originalCostume;
+    //         const copyOfCostume = {};
+    //         Object.assign(copyOfCostume, newCostumeSVG);
+    //         const toSplit = light.toString();
+    //         // prevPositions.push(light);
+    //         const stringToEdit = toSplit.split(' ');
+    //         const filteredString = stringToEdit.filter(e => e === 0 || e);
+    //         const theColor = filteredString.splice(0, 1);
+    //         color = theColor;
+    //         theTime = filteredString.pop();
+    //         // timingArray.push(theTime);
+    //         const positions = this.convertBase(filteredString);
+    //         const absolute = positions.map(pos => +pos + Cast.toNumber(1));
+    //         absolute.map(item => copyOfCostume[`Light${item}`] = `"#${color}"`);
+    //         absolute.unshift(Cast.toString(color));
+    //         prevPositions.push(absolute.toString());
+    //         // eslint-disable-next-line no-loop-func
+    //         // filteredString.map(item => copyOfCostume[`Light${item}`] = `"${color}"`);
+    //         const svg = Object.values(copyOfCostume).join('');
+    //         this.setCostumeSequence(util, svg, theTime);
+    //         vm.runtime.requestRedraw();
+    //         // costumesArray.push(svg);
+    //     }
+    // }
+
+    // setEqualTimingSequence (light, util, copyOfCostumeCombined, color, length) {
+    //     let s = 0;
+    //     while (length > 0) {
+    //         const splitForCostume = light.split(',');
+    //         const splitList = splitForCostume.filter(e => e === 0 || e);
+    //         // eslint-disable-next-line no-console
+    //         console.log(splitList, 'splitList');
+    //         const stringToEdit = splitList[s];
+    //         const splitString = stringToEdit.split(' ');
+    //         const filteredString = splitString.filter(e => e === 0 || e);
+    //         const theColor = filteredString.splice(0, 1);
+    //         theTime = filteredString.pop();
+    //         // timingArray.push(theTime);
+    //         color = theColor;
+    //         const positions = this.convertBase(filteredString);
+    //         const absolute = positions.map(pos => +pos + Cast.toNumber(1));
+    //         // eslint-disable-next-line no-loop-func
+    //         absolute.map(item => copyOfCostumeCombined[`Light${item}`] = `"#${color}"`);
+    //         absolute.unshift(Cast.toString(color));
+    //         prevPositions.push(absolute.toString());
+    //         // costumesArray.push(svg);
+    //         // vm.updateSvg(util.target.currentCostume, svg, 28, 23);
+    //         s++;
+    //         length--;
+    //     }
+    //     const svg = Object.values(copyOfCostumeCombined).join('');
+    //     this.setCostumeSequence(util, svg, theTime);
+    // }
+
+    // setSeparateTimingSequence (length, color, filteredList, util, costumesArray) {
+    //     let i = 0;
+    //     while (length > 0) {
+    //         const newCostumeSVG = original.originalCostume;
+    //         const copyOfCostume = {};
+    //         Object.assign(copyOfCostume, newCostumeSVG);
+    //         const stringToEdit = filteredList[i];
+    //         // prevPositions.push(stringToEdit);
+    //         const splitString = stringToEdit.split(' ');
+    //         const filteredString = splitString.filter(e => e === 0 || e);
+    //         const theColor = filteredString.splice(0, 1);
+    //         theTime = filteredString.pop();
+    //         // timingArray.push(theTime);
+    //         color = theColor;
+    //         const positions = this.convertBase(filteredString);
+    //         const absolute = positions.map(pos => +pos + Cast.toNumber(1));
+    //         // eslint-disable-next-line no-loop-func
+    //         absolute.map(item => copyOfCostume[`Light${item}`] = `"#${color}"`);
+    //         absolute.unshift(Cast.toString(color));
+    //         const svg = Object.values(copyOfCostume).join('');
+    //         costumesArray.push(svg);
+    //         prevPositions.push(absolute.toString());
+    //         // vm.updateSvg(util.target.currentCostume, svg, 28, 23);
+    //         i++;
+    //         length--;
+    //     }
+    //     this.setCostumeSequence(util, costumesArray, theTime);
+    // }
+
+    // setCostumeSequence (util, costume, timing) {
+    //     setTimeout(() => {
+    //         vm.updateSvg(util.target.currentCostume, costume, 28, 23);
+    //         // eslint-disable-next-line no-console
+    //         // console.log(costumes, 'costumes');
+    //     }, timing);
+    // }
+
+    // THE DEMO ONE
+
+    // newCostume (args, util) {
+    //     const newCostumeSVG = original.originalCostume;
+    //     const copyOfCostume = {};
+    //     Object.assign(copyOfCostume, newCostumeSVG);
+    //     const costumesArray = [];
+    //     const timingArray = [];
+    //     const light = Cast.toString(args.LIGHT);
+    //     // eslint-disable-next-line no-console
+    //     console.log(light, 'light');
+    //     let color = '';
+    //     // const splitForFilter = light.split(',');
+    //     // const filteredList = splitForFilter.filter(e => e === 0 || e);
+    //     if (light.includes(',')) {
+    //         if (prevPositions.length > 0) {
+    //             prevPositions.length = 0;
+    //         }
+    //         let i = 0;
+    //         let k = 1;
+    //         const splitForFilter = light.split(',');
+    //         const filteredList = splitForFilter.filter(e => e === 0 || e);
+    //         let length = filteredList.length;
+    //         // let firstLength = filteredList.length;
+    //         // while (firstLength > 0) {
+    //         //     this.duplicateCostume(0);
+    //         //     firstLength--;
+    //         // }
+    //         while (length > 0) {
+    //             // const newCostumeSVG = original.originalCostume;
+    //             // let copyOfCostume = {};
+    //             // Object.assign(copyOfCostume, newCostumeSVG);
+    //             const stringToEdit = filteredList[i];
+    //             // prevPositions.push(stringToEdit);
+    //             const splitString = stringToEdit.split(' ');
+    //             const filteredString = splitString.filter(e => e === 0 || e);
+    //             const theColor = filteredString.splice(0, 1);
+    //             // theTime = filteredString.pop();
+    //             timingArray.push(theTime);
+    //             color = theColor;
+    //             const positions = this.convertBase(filteredString);
+    //             const absolute = positions.map(pos => +pos + Cast.toNumber(1));
+    //             // eslint-disable-next-line no-loop-func
+    //             absolute.map(item => copyOfCostume[`Light${item}`] = `"#${color}"`);
+    //             absolute.unshift(Cast.toString(color));
+    //             prevPositions.push(absolute.toString());
+    //             const svg = Object.values(copyOfCostume).join('');
+    //             costumesArray.push(svg);
+    //             // vm.updateSvg(util.target.currentCostume, svg, 28, 23);
+    //             i++;
+    //             k++;
+    //             length--;
+    //             // copyOfCostume = {};
+    //         }
+    //     } else {
+    //         if (prevPositions.length > 0) {
+    //             prevPositions.length = 0;
+    //         }
+    //         // const newCostumeSVG = original.originalCostume;
+    //         // const copyOfCostume = {};
+    //         Object.assign(copyOfCostume, newCostumeSVG);
+    //         const toSplit = light.toString();
+    //         // prevPositions.push(light);
+    //         const stringToEdit = toSplit.split(' ');
+    //         const filteredString = stringToEdit.filter(e => e === 0 || e);
+    //         const theColor = filteredString.splice(0, 1);
+    //         color = theColor;
+    //         const positions = this.convertBase(filteredString);
+    //         const absolute = positions.map(pos => +pos + Cast.toNumber(1));
+    //         absolute.map(item => copyOfCostume[`Light${item}`] = `"#${color}"`);
+    //         absolute.unshift(Cast.toString(color));
+    //         prevPositions.push(absolute.toString());
+    //         // eslint-disable-next-line no-loop-func
+    //         // filteredString.map(item => copyOfCostume[`Light${item}`] = `"${color}"`);
+    //     }
+    //     const svg = Object.values(copyOfCostume).join('');
+    //     vm.updateSvg(util.target.currentCostume, svg, 28, 23);
+    //     // this.setCostumeSequence(util, costumesArray, timingArray);
+    // }
+
     newCostume (args, util) {
-        const newCostumeSVG = original.originalCostume;
-        const copyOfCostume = {};
-        Object.assign(copyOfCostume, newCostumeSVG);
+        const color = '';
+        let time;
+        const timingArray = [];
         const light = Cast.toString(args.LIGHT);
-        // eslint-disable-next-line no-console
-        console.log(light, 'light');
-        let color = '';
-        // const splitForFilter = light.split(',');
-        // const filteredList = splitForFilter.filter(e => e === 0 || e);
         if (light.includes(',')) {
-            if (prevPositions.length > 0) {
-                prevPositions.length = 0;
-            }
+            const split = light.split(',');
+            let length = split.length;
             let i = 0;
-            const splitForFilter = light.split(',');
-            const filteredList = splitForFilter.filter(e => e === 0 || e);
-            let length = filteredList.length;
             while (length > 0) {
-                const stringToEdit = filteredList[i];
-                // prevPositions.push(stringToEdit);
-                const splitString = stringToEdit.split(' ');
-                const filteredString = splitString.filter(e => e === 0 || e);
-                const theColor = filteredString.splice(0, 1);
-                color = theColor;
-                const positions = this.convertBase(filteredString);
-                const absolute = positions.map(pos => +pos + Cast.toNumber(1));
-                // eslint-disable-next-line no-loop-func
-                absolute.map(item => copyOfCostume[`Light${item}`] = `"#${color}"`);
-                absolute.unshift(Cast.toString(color));
-                prevPositions.push(absolute.toString());
-                i++;
+                const string = split[i];
+                time = string.slice(12);
+                timingArray.push(time);
+                // eslint-disable-next-line no-console
+                console.log(time, 'timing');
                 length--;
+                i++;
+            }
+            if (this.equalTiming(timingArray)) {
+                const Parse = require('./parse-sequence');
+                const parser = new Parse();
+                parser.parseInput(light, prevPositions, color, theTime)
+                    .then(copyOfCostume => {
+                        // eslint-disable-next-line no-console
+                        console.log(copyOfCostume, 'costumecopy');
+                        // eslint-disable-next-line no-console
+                        console.log(theTime, 'timing');
+                        setTimeout(() => {
+                            const svg = Object.values(copyOfCostume).join('');
+                            vm.updateSvg(util.target.currentCostume, svg, 28, 23);
+                        }, time);
+                    });
+            } else {
+                const Parse = require('./parse-sequence');
+                const parser = new Parse();
+                const stringSplit = light.split(',');
+                const filteredList = stringSplit.filter(e => e === 0 || e);
+                let arrayLength = filteredList.length;
+                let k = 0;
+                time = 0;
+                let tempTime = 0;
+                while (arrayLength > 0) {
+                    let newTime = filteredList[k].slice(12);
+                    if (tempTime > 0) {
+                        newTime = newTime - tempTime;
+                    }
+                    parser.parseSingleInput(filteredList[k], prevPositions, color, theTime)
+                        .then(copyOfCostume => {
+                            setTimeout(() => {
+                                const svg = Object.values(copyOfCostume).join('');
+                                vm.updateSvg(util.target.currentCostume, svg, 28, 23);
+                            }, time += Cast.toNumber(newTime));
+                        });
+                    tempTime = newTime;
+                    arrayLength--;
+                    k++;
+                }
             }
         } else {
-            if (prevPositions.length > 0) {
-                prevPositions.length = 0;
-            }
-            const toSplit = light.toString();
-            // prevPositions.push(light);
-            const stringToEdit = toSplit.split(' ');
-            const filteredString = stringToEdit.filter(e => e === 0 || e);
-            const theColor = filteredString.splice(0, 1);
-            color = theColor;
-            const positions = this.convertBase(filteredString);
-            const absolute = positions.map(pos => +pos + Cast.toNumber(1));
-            absolute.map(item => copyOfCostume[`Light${item}`] = `"#${color}"`);
-            absolute.unshift(Cast.toString(color));
-            prevPositions.push(absolute.toString());
-            // eslint-disable-next-line no-loop-func
-            // filteredString.map(item => copyOfCostume[`Light${item}`] = `"${color}"`);
+            const Parse = require('./parse-sequence');
+            const parser = new Parse();
+            time = light.slice(12);
+            parser.parseSingleInput(light, prevPositions, color, theTime)
+                .then(copyOfCostume => {
+                    setTimeout(() => {
+                        const svg = Object.values(copyOfCostume).join('');
+                        vm.updateSvg(util.target.currentCostume, svg, 28, 23);
+                        // eslint-disable-next-line no-console
+                        console.log(time, 'timing');
+                    }, time);
+                });
+        // // eslint-disable-next-line no-console
+        // console.log('not equal or single input');
         }
-        const svg = Object.values(copyOfCostume).join('');
-        vm.updateSvg(util.target.currentCostume, svg, 28, 23);
+    }
+
+    equalTiming (timing) {
+        const firstResult = timing[0];
+        // eslint-disable-next-line no-console
+        console.log(timing, 'timing');
+        // eslint-disable-next-line no-console
+        console.log(firstResult, 'firstREsult');
+        let result = true;
+        for (let i = 0; i < timing.length; i++) {
+            if (timing[i] !== firstResult) {
+                result = false;
+                break;
+            }
+        }
+        // eslint-disable-next-line no-console
+        console.log(result, 'result');
+        return result;
     }
 
     addLight (args) {
@@ -938,35 +1244,6 @@ class Scratch3Satellite {
         newPositions.map(move => {
             prevPositions.push(move);
         });
-    }
-
-    convertBase (hex) {
-        const convert = (baseFrom, baseTo) => number => parseInt(number, baseFrom).toString(baseTo);
-        const hex2bin = convert(16, 2);
-        const result = hex2bin(hex);
-        let newResult = '';
-        if (result.length < 16){
-            newResult = result.padStart(16, 0);
-        } else {
-            newResult = result;
-        }
-        return this.tracePosition(newResult);
-    }
-
-    tracePosition (binary) {
-        const binaryString = binary;
-        const splittedString = binaryString.split('');
-        const filtered = splittedString.filter(Number);
-        let length = filtered.length;
-        const tempPositions = [];
-        while (length > 0) {
-            const indexOfPosition = splittedString.indexOf('1');
-            const value = indexOfPosition;
-            splittedString.splice(indexOfPosition, 1, '0');
-            tempPositions.push(value);
-            length--;
-        }
-        return tempPositions;
     }
 
 }
