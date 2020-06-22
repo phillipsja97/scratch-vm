@@ -52,38 +52,11 @@ class Parse {
                     // copyOfCostume = {};
                 }
             }
-            // } else {
-            //     if (prevPositions.length > 0) {
-            //         prevPositions.length = 0;
-            //     }
-            //     // const newCostumeSVG = original.originalCostume;
-            //     // const copyOfCostume = {};
-            //     Object.assign(copyOfCostume, newCostumeSVG);
-            //     const toSplit = input.toString();
-            //     // prevPositions.push(light);
-            //     const stringToEdit = toSplit.split(' ');
-            //     const filteredString = stringToEdit.filter(e => e === 0 || e);
-            //     const theColor = filteredString.splice(0, 1);
-            //     // timing = filteredString.pop();
-            //     // timingArray.push(timing);
-            //     color = theColor;
-            //     // eslint-disable-next-line no-invalid-this
-            //     const positions = this.convertBase(filteredString);
-            //     const absolute = positions.map(pos => +pos + Cast.toNumber(1));
-            //     absolute.map(item => copyOfCostume[`Light${item}`] = `"#${color}"`);
-            //     absolute.unshift(Cast.toString(color));
-            //     prevPositions.push(absolute.toString());
-            //     // theTime = timingArray[0];
-            //     // eslint-disable-next-line no-console
-            //     // console.log(theTime, 'timingfromparse');
-            //     // eslint-disable-next-line no-loop-func
-            //     // filteredString.map(item => copyOfCostume[`Light${item}`] = `"${color}"`);
-            // }
             resolve(copyOfCostume);
         });
     }
 
-    parseSingleInput (input, prevPositions, color, theTime) {
+    parseSingleInput (input, prevPositions, color) {
         return new Promise(resolve => {
             const newCostumeSVG = original.originalCostume;
             const copyOfCostume = {};
