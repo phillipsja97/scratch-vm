@@ -853,56 +853,118 @@ class Scratch3Satellite {
 
     checkTime (time) {
         const actualTime = time / 1000;
-        if (actualTime > theTime) {
-            return false;
+        if (actualTime < theTime) {
+            return true;
         }
-        return true;
+        return false;
     }
 
     // Focus attention back to setInterval
 
     sequence1 () {
-        const lightsArray = ['00FF00 1F00 180', 'b3b3b3 001F 1500', '00FF00 1F00 180', 'b3b3b3 001F 1500', '00FF00 1F00 180', 'b3b3b3 001F 1500', '00FF00 1F00 180', 'b3b3b3 001F 1500'];
+        const lightsArray = [
+            'L:00FF00 1F00 200',
+            'L:b3b3b3 001F 500',
+            'D: 500',
+            'L:b3b3b3 1F00 200',
+            'L:00FF00 001F 500',
+            'D: 500',
+            'L:00FF00 1F00 200',
+            'L:b3b3b3 001F 500',
+            'D: 500',
+            'L:b3b3b3 1F00 200',
+            'L:00FF00 001F 500',
+            'D: 500',
+            'L:00FF00 1F00 200',
+            'L:b3b3b3 001F 500',
+            'D: 500',
+            'L:b3b3b3 1F00 200',
+            'L:00FF00 001F 500',
+            'D: 500',
+            'L:00FF00 1F00 200',
+            'L:b3b3b3 001F 500',
+            'D: 500',
+            'L:b3b3b3 1F00 200',
+            'L:00FF00 001F 500',
+            'D: 500',
+            'L:00FF00 1F00 200',
+            'L:b3b3b3 001F 500',
+            'D: 500',
+            'L:b3b3b3 1F00 200',
+            'L:00FF00 001F 500',
+            'D: 500',
+            'L:00FF00 1F00 200',
+            'L:b3b3b3 001F 500',
+            'D: 500',
+            'L:b3b3b3 1F00 200',
+            'L:00FF00 001F 500'
+        ];
         const seq = lightsArray.join(',');
         return seq;
     }
 
     sequenceTwo (args, util) {
-        // const lightsArray = ['00FF00 1F00 180', 'b3b3b3 001F 1500', '00FF00 1F00 180', 'b3b3b3 001F 1500', '00FF00 1F00 180', 'b3b3b3 001F 1500', '00FF00 1F00 180', 'b3b3b3 001F 1500'];
-        // const seq = lightsArray.join(',');
-        setInterval(this.myTimer, 1000);
+        const newCostumeSVG = original.originalCostume;
+        const copy2 = {};
+        Object.assign(copy2, newCostumeSVG);
         const seq = args.STRING;
-        // eslint-disable-next-line no-console
-        console.log(seq, 'lights');
         const Parse = require('./parse-sequence');
         const parser = new Parse();
-        const color = '';
+        let color = '';
         const stringSplit = seq.split(',');
         const filteredList = stringSplit.filter(e => e === 0 || e);
         let arrayLength = filteredList.length;
         let k = 0;
+        let time = 0;
         while (arrayLength > 0) {
-            const newTime = filteredList[k].slice(12);
-            parser.parseSingleInput(filteredList[k], prevPositions, color)
-                .then(copyOfCostume => {
-                    while (!this.checkTime(newTime)) {
-                        // eslint-disable-next-line no-console
-                        console.log('not yet');
-                    }
+            if (filteredList[k].includes('L')) {
+                // eslint-disable-next-line no-console
+                console.log(k, 'K-L');
+                const newTime = filteredList[k].slice(14);
+                // eslint-disable-next-line no-console
+                console.log(prevPositions, 'prevPos');
+                const copyOfCostume = parser.parseSingleInput(copy2, filteredList[k], prevPositions, color);
 
-                    // NEED TO FIGURE OUT THE WHILE LOOP ISSUE OF INFINITE LOOPS
-
-
+                setTimeout(() => {
                     // eslint-disable-next-line no-console
-                    console.log('now');
-                    // setTimeout(() => {
-                    // }, time += Cast.toNumber(newTime));
-                    const svg = Object.values(copyOfCostume).join('');
+                    console.log(copyOfCostume, 'copy');
+                    const svg = Object.values(copy2).join('');
                     this.updateSvg(util.target.currentCostume, svg, 28, 23);
-                });
+                }, time += Cast.toNumber(newTime));
+
+            } else {
+                const newCostumeSVG = original.originalCostume;
+                const copyOfCostumeToBeChanged = {};
+                Object.assign(copyOfCostumeToBeChanged, newCostumeSVG);
+                const delayTime = filteredList[k].slice(2);
+                // const positions = prevPositions[0].split(',');
+                // const theColor = positions.splice(0, 1);
+                // color = theColor;
+                // let posLength = positions.length;
+                // let j = 0;
+                // while (posLength > 0) {
+                //     copyOfCostumeToBeChanged[`Light${positions[j]}`] = `"#${color}"`;
+                //     posLength--;
+                //     j++;
+                // }
+                setTimeout(() => {
+                    const svg = Object.values(copyOfCostumeToBeChanged).join('');
+                    this.updateSvg(util.target.currentCostume, svg, 28, 23);
+                }, time += Cast.toNumber(delayTime));
+                this.clearCostume(copyOfCostumeToBeChanged);
+            }
             arrayLength--;
             k++;
         }
+    }
+
+    clearCostume (costume) {
+        const newCostumeSVG = original.originalCostume;
+        const clearCostume = {};
+        Object.assign(clearCostume, newCostumeSVG);
+        const svg = Object.values(clearCostume).join('');
+        costume = svg;
+        return costume;
     }
 
     equalTiming (timing) {
