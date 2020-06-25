@@ -1,5 +1,6 @@
 /* eslint-disable no-loop-func */
 /* eslint-disable no-return-assign */
+const EventEmitter = require('events');
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
 const Cast = require('../../util/cast');
@@ -12,17 +13,19 @@ const costumeData = require('./Assets/Satellites');
 const newCostume = require('./Assets/newCostume');
 // const originalCostume = newCostume.newCostume;
 const load = require('../../import/load-costume');
-
+const RenderedTarget = require('../../sprites/rendered-target');
 const Lights = require('./Assets/newCostume');
 const original = require('./Assets/originalCostume');
 const Conversion = require('./parse-sequence');
 const prevPositions = [];
 let theTime = '';
+let time = 0;
 // let currentTarget = '';
 
 
-class Scratch3Satellite {
+class Scratch3Satellite extends EventEmitter {
     constructor (runtime) {
+        super();
         this.runtime = runtime;
         // const vm = window.vm;
         const storage = runtime.storage;
@@ -423,7 +426,7 @@ class Scratch3Satellite {
                     text: 'Rotate One Spot Clockwise'
                 },
                 {
-                    opcode: 'sequenceTwo',
+                    opcode: 'sequenceToParse',
                     blockType: BlockType.COMMAND,
                     text: 'Sequence Test 2 [STRING]',
                     arguments: {
@@ -435,7 +438,22 @@ class Scratch3Satellite {
                 {
                     opcode: 'sequence1',
                     blockType: BlockType.REPORTER,
-                    text: 'Sequence 1',
+                    text: 'Sequence 1'
+                },
+                {
+                    opcode: 'sequence2',
+                    blockType: BlockType.REPORTER,
+                    text: 'Sequence 2'
+                },
+                {
+                    opcode: 'sequence3',
+                    blockType: BlockType.REPORTER,
+                    text: 'Sequence 3'
+                },
+                {
+                    opcode: 'startBlock',
+                    blockType: BlockType.COMMAND,
+                    text: 'Click To Start Sequence'
                 }
             ],
             menus: {
@@ -732,117 +750,159 @@ class Scratch3Satellite {
     }
 
     updateSvg (costumeIndex, svg, rotationCenterX, rotationCenterY) {
-        return new Promise(resolve => {
-            const costume = vm.editingTarget.getCostumes()[costumeIndex];
-            if (costume && this.runtime && this.runtime.renderer) {
-                costume.rotationCenterX = rotationCenterX;
-                costume.rotationCenterY = rotationCenterY;
-                this.runtime.renderer.updateSVGSkin(costume.skinId, svg, [rotationCenterX, rotationCenterY]);
-                costume.size = this.runtime.renderer.getSkinSize(costume.skinId);
-            }
-            const storage = this.runtime.storage;
-            const encoder = new TextEncoder();
-            // If we're in here, we've edited an svg in the vector editor,
-            // so the dataFormat should be 'svg'
-            costume.dataFormat = storage.DataFormat.SVG;
-            costume.bitmapResolution = 1;
-            costume.asset = storage.createAsset(
-                storage.AssetType.ImageVector,
-                costume.dataFormat,
-                encoder.encode(svg),
-                null,
-                true // generate md5
-            );
-            costume.assetId = costume.asset.assetId;
-            costume.md5 = `${costume.assetId}.${costume.dataFormat}`;
-            vm.emitTargetsUpdate();
-            resolve(costume);
-        });
+        // return new Promise(resolve => {
+        const costume = vm.editingTarget.getCostumes()[costumeIndex];
+        if (costume && this.runtime && this.runtime.renderer) {
+            costume.rotationCenterX = rotationCenterX;
+            costume.rotationCenterY = rotationCenterY;
+            this.runtime.renderer.updateSVGSkin(costume.skinId, svg, [rotationCenterX, rotationCenterY]);
+            costume.size = this.runtime.renderer.getSkinSize(costume.skinId);
+        }
+        const storage = this.runtime.storage;
+        const encoder = new TextEncoder();
+        // If we're in here, we've edited an svg in the vector editor,
+        // so the dataFormat should be 'svg'
+        costume.dataFormat = storage.DataFormat.SVG;
+        costume.bitmapResolution = 1;
+        costume.asset = storage.createAsset(
+            storage.AssetType.ImageVector,
+            costume.dataFormat,
+            encoder.encode(svg),
+            null,
+            true // generate md5
+        );
+        costume.assetId = costume.asset.assetId;
+        costume.md5 = `${costume.assetId}.${costume.dataFormat}`;
+        vm.emitTargetsUpdate();
+        // resolve(costume);
+        // });
     }
 
     newCostume (args, util) {
+        const seq = Cast.toString(args.LIGHT);
+        const Parse = require('./parse-sequence');
+        const parser = new Parse();
         const color = '';
-        let time;
-        const timingArray = [];
-        const light = Cast.toString(args.LIGHT);
-        if (light.includes(',')) {
-            const split = light.split(',');
-            let length = split.length;
-            let i = 0;
-            while (length > 0) {
-                const string = split[i];
-                time = string.slice(12);
-                timingArray.push(time);
-                // eslint-disable-next-line no-console
-                console.log(time, 'timing');
-                length--;
-                i++;
-            }
-            if (this.equalTiming(timingArray)) {
-                const Parse = require('./parse-sequence');
-                const parser = new Parse();
-                // eslint-disable-next-line no-console
-                console.log(light, 'lights');
-                parser.parseInput(light, prevPositions, color, theTime)
-                    .then(copyOfCostume => {
-                        // eslint-disable-next-line no-console
-                        console.log(copyOfCostume, 'costumecopy');
-                        // eslint-disable-next-line no-console
-                        console.log(theTime, 'timing');
-                        setTimeout(() => {
-                            const svg = Object.values(copyOfCostume).join('');
-                            this.updateSvg(util.target.currentCostume, svg, 28, 23);
-                        }, time);
-                        // if (util.stackTimerNeedsInit()) {
-                        //     const duration = Cast.toNumber(time);
-                        //     util.startStackTimer(duration);
-                        //     this.runtime.requestRedraw();
-                        //     util.yield();
-                        // } else if (!util.stackTimerFinished()) {
-                        //     util.yield();
-                        // }
-                    });
+        const stringSplit = seq.split(',');
+        const filteredList = stringSplit.filter(e => e === 0 || e);
+        let arrayLength = filteredList.length;
+        let k = 0;
+        // let time = 0;
+        while (arrayLength > 0) {
+            if (filteredList[k].includes('L')) {
+                const newTime = filteredList[k].slice(14);
+                const copyOfCostume = parser.parseSingleInput(filteredList[k], prevPositions, color);
+
+                setTimeout(() => {
+                    const svg = Object.values(copyOfCostume).join('');
+                    this.updateSvg(util.target.currentCostume, svg, 28, 23);
+                }, time += Cast.toNumber(newTime));
+
             } else {
-                const Parse = require('./parse-sequence');
-                const parser = new Parse();
-                const stringSplit = light.split(',');
-                const filteredList = stringSplit.filter(e => e === 0 || e);
-                let arrayLength = filteredList.length;
-                let k = 0;
-                time = 0;
-                // let tempTime = 0;
-                while (arrayLength > 0) {
-                    const newTime = filteredList[k].slice(12);
-                    // if (tempTime > 0) {
-                    //     newTime = newTime - tempTime;
-                    // }
-                    parser.parseSingleInput(filteredList[k], prevPositions, color, theTime)
-                        .then(copyOfCostume => {
-                            setTimeout(() => {
-                                const svg = Object.values(copyOfCostume).join('');
-                                this.updateSvg(util.target.currentCostume, svg, 28, 23);
-                            }, time += Cast.toNumber(newTime));
-                        });
-                    // tempTime = newTime;
-                    arrayLength--;
-                    k++;
-                }
+                const newCostumeSVG2 = original.originalCostume;
+                const copyOfCostumeToBeChanged = {};
+                Object.assign(copyOfCostumeToBeChanged, newCostumeSVG2);
+                prevPositions.length = 0;
+                const delayTime = filteredList[k].slice(2);
+                setTimeout(() => {
+                    const svg = Object.values(copyOfCostumeToBeChanged).join('');
+                    this.updateSvg(util.target.currentCostume, svg, 28, 23);
+                }, time += Cast.toNumber(delayTime));
+                this.clearCostume(copyOfCostumeToBeChanged);
             }
-        } else {
-            const Parse = require('./parse-sequence');
-            const parser = new Parse();
-            time = light.slice(12);
-            parser.parseSingleInput(light, prevPositions, color, theTime)
-                .then(copyOfCostume => {
-                    setTimeout(() => {
-                        const svg = Object.values(copyOfCostume).join('');
-                        this.updateSvg(util.target.currentCostume, svg, 28, 23);
-                        // eslint-disable-next-line no-console
-                        console.log(time, 'timing');
-                    }, time);
-                });
+            arrayLength--;
+            k++;
         }
+
+        
     }
+
+    startBlock (args, util) {
+        time = 0;
+        this.newCostume(args, util);
+    }
+
+    // newCostume (args, util) {
+    //     const color = '';
+    //     let time;
+    //     const timingArray = [];
+    //     const light = Cast.toString(args.LIGHT);
+    //     if (light.includes(',')) {
+    //         const split = light.split(',');
+    //         let length = split.length;
+    //         let i = 0;
+    //         while (length > 0) {
+    //             const string = split[i];
+    //             time = string.slice(12);
+    //             timingArray.push(time);
+    //             // eslint-disable-next-line no-console
+    //             console.log(time, 'timing');
+    //             length--;
+    //             i++;
+    //         }
+    //         if (this.equalTiming(timingArray)) {
+    //             const Parse = require('./parse-sequence');
+    //             const parser = new Parse();
+    //             // eslint-disable-next-line no-console
+    //             console.log(light, 'lights');
+    //             const copyOfCostume = parser.parseInput(light, prevPositions, color, theTime);
+    //             // eslint-disable-next-line no-console
+    //             console.log(copyOfCostume, 'costumecopy');
+    //             // eslint-disable-next-line no-console
+    //             console.log(theTime, 'timing');
+    //             setTimeout(() => {
+    //                 const svg = Object.values(copyOfCostume).join('');
+    //                 this.updateSvg(util.target.currentCostume, svg, 28, 23);
+    //             }, time);
+    //             // if (util.stackTimerNeedsInit()) {
+    //             //     const duration = Cast.toNumber(time);
+    //             //     util.startStackTimer(duration);
+    //             //     this.runtime.requestRedraw();
+    //             //     util.yield();
+    //             // } else if (!util.stackTimerFinished()) {
+    //             //     util.yield();
+    //             // }
+    //         } else {
+    //             const Parse = require('./parse-sequence');
+    //             const parser = new Parse();
+    //             const stringSplit = light.split(',');
+    //             const filteredList = stringSplit.filter(e => e === 0 || e);
+    //             let arrayLength = filteredList.length;
+    //             let k = 0;
+    //             time = 0;
+    //             // let tempTime = 0;
+    //             while (arrayLength > 0) {
+    //                 const newTime = filteredList[k].slice(12);
+    //                 // if (tempTime > 0) {
+    //                 //     newTime = newTime - tempTime;
+    //                 // }
+    //                 parser.parseSingleInput(filteredList[k], prevPositions, color, theTime)
+    //                     .then(copyOfCostume => {
+    //                         setTimeout(() => {
+    //                             const svg = Object.values(copyOfCostume).join('');
+    //                             this.updateSvg(util.target.currentCostume, svg, 28, 23);
+    //                         }, time += Cast.toNumber(newTime));
+    //                     });
+    //                 // tempTime = newTime;
+    //                 arrayLength--;
+    //                 k++;
+    //             }
+    //         }
+    //     } else {
+    //         const Parse = require('./parse-sequence');
+    //         const parser = new Parse();
+    //         time = light.slice(12);
+    //         parser.parseSingleInput(light, prevPositions, color, theTime)
+    //             .then(copyOfCostume => {
+    //                 setTimeout(() => {
+    //                     const svg = Object.values(copyOfCostume).join('');
+    //                     this.updateSvg(util.target.currentCostume, svg, 28, 23);
+    //                     // eslint-disable-next-line no-console
+    //                     console.log(time, 'timing');
+    //                 }, time);
+    //             });
+    //     }
+    // }
 
     myTimer () {
         theTime++;
@@ -863,98 +923,179 @@ class Scratch3Satellite {
 
     sequence1 () {
         const lightsArray = [
-            'L:00FF00 1F00 200',
-            'L:b3b3b3 001F 500',
-            'D: 500',
-            'L:b3b3b3 1F00 200',
-            'L:00FF00 001F 500',
-            'D: 500',
-            'L:00FF00 1F00 200',
-            'L:b3b3b3 001F 500',
-            'D: 500',
-            'L:b3b3b3 1F00 200',
-            'L:00FF00 001F 500',
-            'D: 500',
-            'L:00FF00 1F00 200',
-            'L:b3b3b3 001F 500',
-            'D: 500',
-            'L:b3b3b3 1F00 200',
-            'L:00FF00 001F 500',
-            'D: 500',
-            'L:00FF00 1F00 200',
-            'L:b3b3b3 001F 500',
-            'D: 500',
-            'L:b3b3b3 1F00 200',
-            'L:00FF00 001F 500',
-            'D: 500',
-            'L:00FF00 1F00 200',
-            'L:b3b3b3 001F 500',
-            'D: 500',
-            'L:b3b3b3 1F00 200',
-            'L:00FF00 001F 500',
-            'D: 500',
-            'L:00FF00 1F00 200',
-            'L:b3b3b3 001F 500',
-            'D: 500',
-            'L:b3b3b3 1F00 200',
-            'L:00FF00 001F 500'
+            
+            'L: 646400 FFFF 100',
+            'D: 2000',
+
+            'L: 000000 FFFF 100',
+            'D: 300',
+
+            'L: 646400 FFFF 100',
+            'D: 600',
+
+            'L: 000000 FFFF 100',
+            'D: 300',
+
+            'L: 646400 FFFF 100',
+            'D: 600',
+
+            'L: 000000 FFFF 100',
+            'D: 100'
         ];
         const seq = lightsArray.join(',');
         return seq;
     }
 
-    sequenceTwo (args, util) {
-        const newCostumeSVG = original.originalCostume;
-        const copy2 = {};
-        Object.assign(copy2, newCostumeSVG);
+    sequence2 () {
+        const lightsArray = [
+            
+            
+            'L: 646400 FFFF 1',
+            'D: 200',
+
+            'L: 000000 FFFF 1',
+            'D: 200',
+
+            'L: 000064 FE00 300',
+
+            'L: 006464 00FE 300',
+
+            'L: 646464 0101 300',
+
+            'D: 300',
+
+            'L: 646400 FFFF 1',
+            'D: 200',
+
+            'L: 000000 FFFF 1',
+            'D: 200',
+
+            'L: 000064 FE00 300',
+
+            'L: 006464 00FE 300',
+
+            'L: 646464 0101 300',
+            'D: 200'
+
+        ];
+        const seq = lightsArray.join(',');
+        return seq;
+    }
+
+    sequence3 () {
+        const lightsArray = [
+           
+            'L: 006464 FE00 50',
+
+
+            'L: 006400 00FE 50',
+
+
+            'L: 646464 0101 50',
+            'D: 50',
+
+            'L: 006464 7E00 50',
+
+
+            'L: 006400 017F 50',
+
+
+            'L: 646464 8080 50',
+            'D: 150',
+
+            'L: 006464 3F80 50',
+
+
+            'L: 006400 803F 50',
+
+
+            'L: 646464 4040 50',
+            'D: 150',
+
+            'L: 006464 1FC0 50',
+
+
+            'L: 006400 C01F 50',
+
+
+            'L: 646464 2020 50',
+            'D: 150',
+
+            'L: 006464 0FE0 50',
+
+
+            'L: 006400 E00F 50',
+
+
+            'L: 646464 1010 50',
+            'D: 150'
+        ];
+        const seq = lightsArray.join(',');
+        return seq;
+    }
+
+    sequenceToParse (args, util) {
         const seq = args.STRING;
+        // eslint-disable-next-line no-console
+        console.log(seq, 'seq');
         const Parse = require('./parse-sequence');
         const parser = new Parse();
-        let color = '';
+        const color = '';
         const stringSplit = seq.split(',');
         const filteredList = stringSplit.filter(e => e === 0 || e);
         let arrayLength = filteredList.length;
         let k = 0;
-        let time = 0;
+        // let time = 0;
         while (arrayLength > 0) {
             if (filteredList[k].includes('L')) {
-                // eslint-disable-next-line no-console
-                console.log(k, 'K-L');
                 const newTime = filteredList[k].slice(14);
-                // eslint-disable-next-line no-console
-                console.log(prevPositions, 'prevPos');
-                const copyOfCostume = parser.parseSingleInput(copy2, filteredList[k], prevPositions, color);
-
+                const copyOfCostume = parser.parseSingleInput(filteredList[k], prevPositions, color);
                 setTimeout(() => {
-                    // eslint-disable-next-line no-console
-                    console.log(copyOfCostume, 'copy');
-                    const svg = Object.values(copy2).join('');
+                    const svg = Object.values(copyOfCostume).join('');
                     this.updateSvg(util.target.currentCostume, svg, 28, 23);
+                    // eslint-disable-next-line no-console
+                    console.log(this.runtime.targets[1].visible, 'runtime');
+                    if (this.runtime.targets[1].visible) {
+                        this.emit(RenderedTarget.EVENT_TARGET_VISUAL_CHANGE, this);
+                        this.runtime.requestRedraw();
+                        // eslint-disable-next-line no-console
+                        console.log('did we hit here?');
+                    }
                 }, time += Cast.toNumber(newTime));
 
             } else {
-                const newCostumeSVG = original.originalCostume;
+                const newCostumeSVG2 = original.originalCostume;
                 const copyOfCostumeToBeChanged = {};
-                Object.assign(copyOfCostumeToBeChanged, newCostumeSVG);
+                Object.assign(copyOfCostumeToBeChanged, newCostumeSVG2);
                 const delayTime = filteredList[k].slice(2);
-                // const positions = prevPositions[0].split(',');
-                // const theColor = positions.splice(0, 1);
-                // color = theColor;
-                // let posLength = positions.length;
-                // let j = 0;
-                // while (posLength > 0) {
-                //     copyOfCostumeToBeChanged[`Light${positions[j]}`] = `"#${color}"`;
-                //     posLength--;
-                //     j++;
-                // }
+                prevPositions.length = 0;
                 setTimeout(() => {
                     const svg = Object.values(copyOfCostumeToBeChanged).join('');
                     this.updateSvg(util.target.currentCostume, svg, 28, 23);
+                    // const need = new RenderedTarget();
+                    // eslint-disable-next-line no-console
+                    console.log(this.runtime.targets[1].visible, 'runtime');
+                    if (this.runtime.targets[1].visible) {
+                        this.emit(RenderedTarget.EVENT_TARGET_VISUAL_CHANGE, this);
+                        this.runtime.requestRedraw();
+                        // eslint-disable-next-line no-console
+                        console.log(this.emit(RenderedTarget.EVENT_TARGET_VISUAL_CHANGE, this), 'event');
+                    }
+                    // if (this.emit(RenderedTarget.EVENT_TARGET_VISUAL_CHANGE, this)) {
+                    //     this.runtime.requestRedraw();
+                    // }
                 }, time += Cast.toNumber(delayTime));
-                this.clearCostume(copyOfCostumeToBeChanged);
             }
             arrayLength--;
             k++;
+            // const render = new RenderedTarget();
+            // if (this.emit(RenderedTarget.EVENT_TARGET_VISUAL_CHANGE, this)) {
+            //     this.runtime.requestRedraw();
+            //     // eslint-disable-next-line no-console
+            //     console.log('did we hit here?');
+            // }
+            // // eslint-disable-next-line no-console
+            // console.log(this.runtime.redrawRequested, 'redraw');
         }
     }
 
