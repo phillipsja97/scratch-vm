@@ -4,19 +4,10 @@ const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
 const Cast = require('../../util/cast');
 const MathUtil = require('../../util/math-util');
-const Clone = require('../../util/clone');
-const Timer = require('../../util/Timer');
 const Scratch3LooksBlocks = require('../../blocks/scratch3_looks');
 const vm = window.vm;
-const costumeData = require('./Assets/Satellites');
-const newCostume = require('./Assets/newCostume');
-// const originalCostume = newCostume.newCostume;
-const load = require('../../import/load-costume');
-const Lights = require('./Assets/newCostume');
 const original = require('./Assets/originalCostume');
-const Conversion = require('./hexToBinary');
 const prevPositions = [];
-let continueColor = [];
 // let currentTarget = '';
 
 
