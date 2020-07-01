@@ -6,6 +6,8 @@ const BlockType = require('../../extension-support/block-type');
 const Cast = require('../../util/cast');
 const MathUtil = require('../../util/math-util');
 const Scratch3LooksBlocks = require('../../blocks/scratch3_looks');
+const BlockUtility = require('../../engine/block-utility');
+const Runtime = require('../../engine/runtime');
 const vm = window.vm;
 const original = require('./Assets/originalCostume');
 const prevPositions = [];
@@ -17,6 +19,55 @@ class Scratch3Satellite extends EventEmitter {
         super();
         this.runtime = runtime;
         const storage = runtime.storage;
+
+        this._active = false;
+        const mqtt = require('mqtt');
+        this._message = '';
+        // eslint-disable-next-line no-unused-expressions
+        this._client;
+        this._client = mqtt.connect('ws://broker.mqttdashboard.com:8000/mqtt');
+
+        // eslint-disable-next-line no-console
+        console.log(this._client, 'client');
+
+        this.on('started', () => {
+            this._active = true;
+            // eslint-disable-next-line no-console
+            console.log('is it true', this._active);
+        });
+
+        this.on('over', () => {
+            this._active = false;
+            // eslint-disable-next-line no-console
+            console.log('is it false', this._active);
+            time = 0;
+            this._message = '';
+        });
+
+        
+        this._client.on('connect', () => {
+            // eslint-disable-next-line no-console
+            console.log('connected', +this._client.connected);
+            this._client.subscribe('sat/#', () => {
+                // eslint-disable-next-line no-console
+                console.log('subscribed to sat/#');
+            });
+        });
+
+        this._client.on('message', (topic, message, packet) => {
+            const data = message.toString();
+            this._message = data;
+            // eslint-disable-next-line no-console
+            console.log(this._message, 'message');
+            this.newCostume(this._message);
+            // this.newCostume(message, util);
+            // eslint-disable-next-line no-console
+            console.log('topic', topic);
+            // eslint-disable-next-line no-console
+            console.log('packet', packet);
+        });
+
+
 
         const backdropCostume = `<svg version="1.1" width="2" height="2" viewBox="-1 -1 2 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                                     <!-- Exported by Scratch - http://scratch.mit.edu/ -->
@@ -176,6 +227,16 @@ class Scratch3Satellite extends EventEmitter {
                     blockType: BlockType.REPORTER,
                     text: 'Sequence 3'
                 },
+                {
+                    opcode: 'sendMessage',
+                    blockType: BlockType.COMMAND,
+                    text: 'Send MQTT [MESSAGE]',
+                    arguments: {
+                        MESSAGE: {
+                            type: ArgumentType.STRING
+                        }
+                    }
+                }
             ]
         };
     }
@@ -219,8 +280,14 @@ class Scratch3Satellite extends EventEmitter {
         vm.emitTargetsUpdate();
     }
 
-    newCostume (args, util) {
-        const seq = Cast.toString(args.LIGHT);
+    newCostume (args) {
+        let seq = '';
+        this.emit('started');
+        if (this._message === ''){
+            seq = Cast.toString(args.LIGHT);
+        } else {
+            seq = this._message;
+        }
         const Parse = require('./parse-sequence');
         const parser = new Parse();
         const color = '';
@@ -235,7 +302,8 @@ class Scratch3Satellite extends EventEmitter {
 
                 setTimeout(() => {
                     const svg = Object.values(copyOfCostume).join('');
-                    this.updateSvg(util.target.currentCostume, svg, 28, 23);
+                    // this.updateSvg(util.target.currentCostume, svg, 28, 23);
+                    this.updateSvg(0, svg, 28, 23);
                 }, time += Cast.toNumber(newTime));
 
             } else {
@@ -246,21 +314,20 @@ class Scratch3Satellite extends EventEmitter {
                 const delayTime = filteredList[k].slice(2);
                 setTimeout(() => {
                     const svg = Object.values(copyOfCostumeToBeChanged).join('');
-                    this.updateSvg(util.target.currentCostume, svg, 28, 23);
+                    this.updateSvg(0, svg, 28, 23);
                 }, time += Cast.toNumber(delayTime));
                 // this.clearCostume(copyOfCostumeToBeChanged);
             }
             arrayLength--;
             k++;
         }
-
-        
+        this.emit('over');
     }
 
-    startBlock (args, util) {
-        time = 0;
-        this.newCostume(args, util);
-    }
+    // startBlock () {
+    //     time = 0;
+    //     // this.newCostume(args, util);
+    // }
 
     sequence1 () {
         const lightsArray = [
@@ -445,6 +512,21 @@ class Scratch3Satellite extends EventEmitter {
             prevPositions.push(move);
         });
     }
+
+    sendMessage (args) {
+        const seq = Cast.toString(args.MESSAGE);
+        const stringSplit = seq.split(',');
+        const filteredList = stringSplit.filter(e => e === 0 || e);
+        let arrayLength = filteredList.length;
+        let i = 0;
+        while (arrayLength > 0) {
+            const message = filteredList[i];
+            this._client.publish('sat/Test1', message);
+            arrayLength--;
+            i++;
+        }
+    }
+
 
 }
   
