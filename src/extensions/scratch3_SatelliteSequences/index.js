@@ -75,6 +75,14 @@ class Scratch3Satellite extends EventEmitter {
         });
 
         /**
+         * Event listen to set this._active to true
+         */
+        this._currentUsersSatellite = window.location.host;
+
+        // eslint-disable-next-line no-console
+        console.log(this._currentUsersSatellite, 'test');
+
+        /**
          * Event listen to set this._active to false
          * Resets the timing for the sequences and resets the message from MQTT.
          */
@@ -90,19 +98,18 @@ class Scratch3Satellite extends EventEmitter {
         this._client.on('connect', () => {
             // eslint-disable-next-line no-console
             console.log('connected', +this._client.connected);
-            this._client.subscribe('sat/#', () => {
+            this._client.subscribe(`${this._currentUsersSatellite}/cmd/fx`, () => {
                 // eslint-disable-next-line no-console
-                console.log('subscribed to sat/#');
+                console.log(`subscribed to ${this._currentUsersSatellite}/cmd/fx`);
             });
         });
 
         /**
          * Event listen on any messages
          */
-        this._client.on('message', packet => {
-            const data = packet.payload.toString();
-            this._message = data;
-            this.newCostume(this._message);
+        this._client.on('message', (topic, message, packet) => {
+            this._message = message.toString();
+            this.startSequence(this._message);
         });
 
         /**
@@ -220,15 +227,15 @@ class Scratch3Satellite extends EventEmitter {
             name: 'Satellite Sequence',
             blockIconURI: blockIconURI,
             blocks: [
+                // {
+                //     opcode: 'startBlock',
+                //     blockType: BlockType.COMMAND,
+                //     text: 'Click To Start Sequence'
+                // },
                 {
-                    opcode: 'startBlock',
+                    opcode: 'startSequence',
                     blockType: BlockType.COMMAND,
-                    text: 'Click To Start Sequence'
-                },
-                {
-                    opcode: 'newCostume',
-                    blockType: BlockType.COMMAND,
-                    text: 'Set Sequence[LIGHT]',
+                    text: 'Start Sequence[LIGHT]',
                     arguments: {
                         LIGHT: {
                             type: ArgumentType.LIGHT,
@@ -237,9 +244,9 @@ class Scratch3Satellite extends EventEmitter {
                     }
                 },
                 {
-                    opcode: 'addLight',
+                    opcode: 'addPosition',
                     blockType: BlockType.REPORTER,
-                    text: 'Add Light [LIGHT] and [LIGHT2]',
+                    text: 'Add Position [LIGHT] and [LIGHT2]',
                     arguments: {
                         LIGHT: {
                             type: ArgumentType.LIGHT
@@ -252,10 +259,11 @@ class Scratch3Satellite extends EventEmitter {
                 {
                     opcode: 'sequenceSpeed',
                     blockType: BlockType.COMMAND,
-                    text: 'Wait For [DURATION] Seconds',
+                    text: 'Delay [DURATION] Seconds',
                     arguments: {
                         DURATION: {
-                            type: ArgumentType.NUMBER
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
                         }
                     }
                 },
@@ -285,7 +293,8 @@ class Scratch3Satellite extends EventEmitter {
                     text: 'Send MQTT [MESSAGE]',
                     arguments: {
                         MESSAGE: {
-                            type: ArgumentType.STRING
+                            type: ArgumentType.STRING,
+                            defaultValue: 'Message'
                         }
                     }
                 }
@@ -342,7 +351,7 @@ class Scratch3Satellite extends EventEmitter {
      * Starting the sequence
      * @param {object} args - a light sequence id.
      */
-    newCostume (args) {
+    startSequence (args) {
         let seq = '';
         this.emit('started');
         if (this._message === ''){
@@ -504,7 +513,7 @@ class Scratch3Satellite extends EventEmitter {
      * @param {object} args - the light positions
      * @return {string} lights - the string of sequence lines.
      */
-    addLight (args) {
+    addPosition (args) {
         const light1 = Cast.toString(args.LIGHT);
         const light2 = Cast.toString(args.LIGHT2);
         const lights = [];
@@ -591,7 +600,7 @@ class Scratch3Satellite extends EventEmitter {
         let i = 0;
         while (arrayLength > 0) {
             const message = filteredList[i];
-            this._client.publish('sat/Test1', message);
+            this._client.publish(`${this._currentUsersSatellite}/cmd/fx`, message);
             arrayLength--;
             i++;
         }
