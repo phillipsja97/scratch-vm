@@ -3,6 +3,7 @@
 const EventEmitter = require('events');
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
+const MathUtil = require('../../util/Math-util');
 const Cast = require('../../util/cast');
 const encoder = new TextEncoder();
 const vm = window.vm;
@@ -66,6 +67,8 @@ class Scratch3Satellite extends EventEmitter {
         @type {String}
         */
         this._time = 0;
+
+        this.STORE_WAITING = true;
 
         /**
          * Event listen to set this._active to true
@@ -259,11 +262,16 @@ class Scratch3Satellite extends EventEmitter {
                 {
                     opcode: 'startSequence',
                     blockType: BlockType.COMMAND,
-                    text: 'Start Sequence[LIGHT]',
+                    text: 'Start Sequence[LIGHT] and play [SOUND_MENU]',
                     arguments: {
                         LIGHT: {
                             type: ArgumentType.LIGHT,
                             defaultValue: 'Light1'
+                        },
+                        SOUND_MENU: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'none',
+                            menu: 'sounds'
                         }
                     }
                 },
@@ -337,9 +345,104 @@ class Scratch3Satellite extends EventEmitter {
                     opcode: 'startBlock',
                     blockType: BlockType.COMMAND,
                     text: 'Starting Block'
+                },
+                {
+                    opcode: 'playSound',
+                    blockType: BlockType.COMMAND,
+                    text: 'Play Sound [SOUND_MENU]',
+                    arguments: {
+                        SOUND_MENU: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'none',
+                            menu: 'sounds'
+                        }
+                    }
                 }
-            ]
+            ],
+            menus: {
+                sounds: {
+                    acceptReporters: true,
+                    items: [{text: 'Pop', value: 'pop'}]
+                }
+            }
         };
+    }
+
+    playSound (args, util) {
+        // Don't return the promise, it's the only difference for AndWait
+        // this._playSound(args, util);
+        const index = this._getSoundIndex(args.SOUND_MENU, util);
+        if (index >= 0) {
+            const {target} = util;
+            const {sprite} = target;
+            const {soundId} = sprite.sounds[index];
+            return sprite.soundBank.playSound(target, soundId);
+        }
+    }
+
+    _playSound (args, util, storeWaiting) {
+        const index = this._getSoundIndex(args.SOUND_MENU, util);
+        if (index >= 0) {
+            const {target} = util;
+            const {sprite} = target;
+            const {soundId} = sprite.sounds[index];
+            if (sprite.soundBank) {
+                if (storeWaiting === this.STORE_WAITING) {
+                    this._addWaitingSound(target.id, soundId);
+                } else {
+                    this._removeWaitingSound(target.id, soundId);
+                }
+                return sprite.soundBank.playSound(target, soundId);
+            }
+        }
+    }
+
+    _addWaitingSound (targetId, soundId) {
+        if (!this.waitingSounds[targetId]) {
+            this.waitingSounds[targetId] = new Set();
+        }
+        this.waitingSounds[targetId].add(soundId);
+    }
+
+    _removeWaitingSound (targetId, soundId) {
+        if (!this.waitingSounds[targetId]) {
+            return;
+        }
+        this.waitingSounds[targetId].delete(soundId);
+    }
+
+    _getSoundIndex (soundName, util) {
+        // if the sprite has no sounds, return -1
+        const len = util.target.sprite.sounds.length;
+        if (len === 0) {
+            return -1;
+        }
+
+        // look up by name first
+        const index = this.getSoundIndexByName(soundName, util);
+        if (index !== -1) {
+            return index;
+        }
+
+        // then try using the sound name as a 1-indexed index
+        const oneIndexedIndex = parseInt(soundName, 10);
+        if (!isNaN(oneIndexedIndex)) {
+            return MathUtil.wrapClamp(oneIndexedIndex - 1, 0, len - 1);
+        }
+
+        // could not be found as a name or converted to index, return -1
+        return -1;
+    }
+
+    getSoundIndexByName (soundName, util) {
+        const sounds = util.target.sprite.sounds;
+        for (let i = 0; i < sounds.length; i++) {
+            if (sounds[i].name === soundName) {
+                return i;
+            }
+        }
+        // if there is no sound by that name, return -1
+        return -1;
     }
 
     sequenceSpeed (args, util) {
@@ -390,8 +493,9 @@ class Scratch3Satellite extends EventEmitter {
     /**
      * Starting the sequence
      * @param {object} args - a light sequence id.
+     * @param {object} util - target.
      */
-    startSequence (args) {
+    startSequence (args, util) {
         let seq = '';
         this.emit('started');
         if (this._message === ''){
@@ -415,6 +519,7 @@ class Scratch3Satellite extends EventEmitter {
                     const svg = Object.values(copyOfCostume).join('');
                     // this.updateSvg(util.target.currentCostume, svg, 28, 23);
                     this.updateSvg(0, svg, 28, 23);
+                    this.playSound(args, util);
                 }, this._time += Cast.toNumber(newTime));
 
             } else {
