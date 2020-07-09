@@ -75,12 +75,33 @@ class Scratch3Satellite extends EventEmitter {
         });
 
         /**
-         * Event listen to set this._active to true
+         * Satellite info for other users to subscribe to
          */
         this._currentUsersSatellite = window.location.host;
 
+        /**
+         * Event listen to set this._active to true
+         */
+        this._satelliteToPublishTo = '';
+
         // eslint-disable-next-line no-console
         console.log(this._currentUsersSatellite, 'test');
+
+        this._time = 0;
+        this._message = '';
+
+        // eslint-disable-next-line no-console
+        console.log(runtime, 'runtime');
+
+        // // eslint-disable-next-line no-console
+        // console.log(Thread.STATUS_DONE, 'status done?');
+
+        this.on('over', () => {
+            this._time = 0;
+            this._message = '';
+            // eslint-disable-next-line no-console
+            console.log('disposed');
+        });
 
         /**
          * Event listen to set this._active to false
@@ -88,8 +109,6 @@ class Scratch3Satellite extends EventEmitter {
          */
         this.on('over', () => {
             this._active = false;
-            this._time = 0;
-            this._message = '';
         });
 
         /**
@@ -198,7 +217,17 @@ class Scratch3Satellite extends EventEmitter {
                     comments: {},
                     currentCostume: 0,
                     costumes: [costume1Data],
-                    sounds: [],
+                    sounds: [
+                        {
+                            assetId: '83a9787d4cb6f3b7632b4ddfebf74367',
+                            name: 'pop',
+                            dataFormat: 'wav',
+                            format: '',
+                            rate: 44100,
+                            sampleCount: 1032,
+                            md5ext: '83a9787d4cb6f3b7632b4ddfebf74367.wav'
+                        }
+                    ],
                     volume: 100,
                     layerOrder: 1,
                     visible: true,
@@ -227,11 +256,6 @@ class Scratch3Satellite extends EventEmitter {
             name: 'Satellite Sequence',
             blockIconURI: blockIconURI,
             blocks: [
-                // {
-                //     opcode: 'startBlock',
-                //     blockType: BlockType.COMMAND,
-                //     text: 'Click To Start Sequence'
-                // },
                 {
                     opcode: 'startSequence',
                     blockType: BlockType.COMMAND,
@@ -297,6 +321,22 @@ class Scratch3Satellite extends EventEmitter {
                             defaultValue: 'Message'
                         }
                     }
+                },
+                {
+                    opcode: 'setSubscription',
+                    blockType: BlockType.COMMAND,
+                    text: 'Set Satellite Publish ID [SATELLITE]',
+                    arguments: {
+                        SATELLITE: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'SatelliteId'
+                        }
+                    }
+                },
+                {
+                    opcode: 'startBlock',
+                    blockType: BlockType.COMMAND,
+                    text: 'Starting Block'
                 }
             ]
         };
@@ -387,12 +427,21 @@ class Scratch3Satellite extends EventEmitter {
                     const svg = Object.values(copyOfCostumeToBeChanged).join('');
                     this.updateSvg(0, svg, 28, 23);
                 }, this._time += Cast.toNumber(delayTime));
-                // this.clearCostume(copyOfCostumeToBeChanged);
             }
             arrayLength--;
             k++;
         }
-        this.emit('over');
+        // this.emit('over');
+        // eslint-disable-next-line no-console
+        console.log('runtime', this.runtime);
+        // const doneThreads = this.runtime.sequencer.stepThreads();
+        // // eslint-disable-next-line no-console
+        // this.runtime._emitProjectRunStatus(this.runtime._nonMonitorThreadCount);
+    //     if (this.runtime.isActiveThread(this.runtime.threads)) {
+    //         this.emit(Thread.STATUS_RUNNING);
+    //     } else {
+    //         this.emit(Thread.STATUS_DONE);
+    //     }
     }
 
     sequence1 () {
@@ -508,6 +557,11 @@ class Scratch3Satellite extends EventEmitter {
         return seq;
     }
 
+    startBlock () {
+        this._time = 0;
+        this._message = '';
+    }
+
     /**
      * Adding a another input to the input field
      * @param {object} args - the light positions
@@ -594,16 +648,17 @@ class Scratch3Satellite extends EventEmitter {
      */
     sendMessage (args) {
         const seq = Cast.toString(args.MESSAGE);
-        const stringSplit = seq.split(',');
-        const filteredList = stringSplit.filter(e => e === 0 || e);
-        let arrayLength = filteredList.length;
-        let i = 0;
-        while (arrayLength > 0) {
-            const message = filteredList[i];
-            this._client.publish(`${this._currentUsersSatellite}/cmd/fx`, message);
-            arrayLength--;
-            i++;
-        }
+        const topic = this._satelliteToPublishTo;
+        this._client.publish(topic, seq);
+    }
+
+    /**
+     * The block to set a topic to publish to
+     * @param {object} args - the message to be sent to MQTT.
+     */
+    setSubscription (args) {
+        const id = Cast.toString(args.SATELLITE);
+        this._satelliteToPublishTo = id;
     }
 
 
